@@ -1,0 +1,15 @@
+[versions]
+#noinspection GradleDependency
+app = "8.2.2"
+#noinspection GradleDependency
+kotlin = "1.9.10"
+xposed-api = "100"
+
+[libraries]
+libxposed-api = { group = "io.github.libxposed", name = "api", version.ref = "xposed-api" }
+
+[plugins]
+app = { id = "com.android.application", version.ref = "app" }
+kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+
+
