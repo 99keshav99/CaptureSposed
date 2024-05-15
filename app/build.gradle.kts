@@ -14,11 +14,20 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.3" // libs.versions.compose.get()
     }
 
     buildTypes {
@@ -54,5 +63,10 @@ android {
 }
 
 dependencies {
+    implementation(libs.appcompat)
+    implementation(libs.activity.compose)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.material)
+    debugImplementation(libs.compose.tooling)
     compileOnly(libs.libxposed.api)
 }
