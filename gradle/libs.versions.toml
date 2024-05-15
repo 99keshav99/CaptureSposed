@@ -2,12 +2,14 @@
 app = "8.4.0"
 kotlin = "1.9.10"
 xposed-api = "100"
+xposed-service = "100-1.0.0"
 appcompat = "1.6.1"
 compose = "1.6.7"
 activity-compose = "1.9.0"
 
 [libraries]
 libxposed-api = { group = "io.github.libxposed", name = "api", version.ref = "xposed-api" }
+libxposed-service = { group = "io.github.libxposed", name = "service", version.ref = "xposed-service" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-material = { module = "androidx.compose.material:material", version.ref = "compose" }

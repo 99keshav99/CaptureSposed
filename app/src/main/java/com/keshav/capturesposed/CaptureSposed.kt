@@ -17,14 +17,12 @@ class CaptureSposed(base: XposedInterface, param: ModuleLoadedParam) : XposedMod
         try {
             hook(
                 Class.forName(
-                    "com.android.server.wm.ActivityTaskManagerService",
-                    true,
-                    param.classLoader
+                    "com.android.server.wm.ActivityTaskManagerService", true, param.classLoader
                 ).getDeclaredMethod(
-                        "registerScreenCaptureObserver",
-                        IBinder::class.java,
-                        Class.forName("android.app.IScreenCaptureObserver")
-                    ), ActivityTaskManagerServiceHooker::class.java
+                    "registerScreenCaptureObserver",
+                    IBinder::class.java,
+                    Class.forName("android.app.IScreenCaptureObserver")
+                ), ActivityTaskManagerServiceHooker::class.java
             )
         } catch (e: Exception) {
             log("[CaptureSposed] ERROR: $e")

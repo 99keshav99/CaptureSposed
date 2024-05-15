@@ -23,13 +23,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.keshav.capturesposed.ui.theme.APPTheme
+import com.keshav.capturesposed.utils.PreferenceManager
 
 class MainActivity : ComponentActivity() {
+
     private var counter = mutableIntStateOf(0)
     private var isSwitchOn = mutableStateOf(false)
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        PreferenceManager.loadPreferences(this)
+        isSwitchOn.value = PreferenceManager.isHookActive()
         setContent {
             APPTheme {
                 Surface(
@@ -75,7 +80,10 @@ class MainActivity : ComponentActivity() {
                 )
                 Switch(
                     checked = isSwitchOn.value,
-                    onCheckedChange = { isSwitchOn.value = it }
+                    onCheckedChange = {
+                        PreferenceManager.toggleHookState()
+                        isSwitchOn.value = PreferenceManager.isHookActive()
+                    }
                 )
             }
             Text(
