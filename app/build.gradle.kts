@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.activity.compose)
     implementation(libs.compose.ui)
     implementation(libs.compose.material)
+    implementation(libs.libxposed.service)
     debugImplementation(libs.compose.tooling)
     compileOnly(libs.libxposed.api)
 }
