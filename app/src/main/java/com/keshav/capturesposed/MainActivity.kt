@@ -22,6 +22,7 @@ import com.keshav.capturesposed.ui.theme.APPTheme
 class MainActivity : ComponentActivity() {
     private var counter = mutableIntStateOf(0)
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_APP)
         super.onCreate(savedInstanceState)
         setContent {
             APPTheme {
