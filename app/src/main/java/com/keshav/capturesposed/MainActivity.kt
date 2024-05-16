@@ -22,12 +22,12 @@ import com.keshav.capturesposed.ui.theme.APPTheme
 class MainActivity : ComponentActivity() {
     private var counter = mutableIntStateOf(0)
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_APP)
         super.onCreate(savedInstanceState)
         setContent {
             APPTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
+                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background
                 ) {
                     AppUI(counter.intValue)
                 }
@@ -60,14 +60,10 @@ fun AppUI(counter: Int, modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "APP!",
-            fontSize = 160.sp,
-            textAlign = TextAlign.Center
+            text = "APP!", fontSize = 160.sp, textAlign = TextAlign.Center
         )
         Text(
-            text = "Counter: $counter",
-            fontSize = 50.sp,
-            textAlign = TextAlign.Center
+            text = "Counter: $counter", fontSize = 50.sp, textAlign = TextAlign.Center
         )
     }
 }
