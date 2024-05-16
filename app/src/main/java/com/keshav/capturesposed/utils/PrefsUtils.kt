@@ -26,7 +26,7 @@ object PrefsUtils {
         }
 
         if (hookActive == null) {
-            hookActive = prefs!!.getBoolean("hookActive", false)
+            hookActive = prefs!!.getBoolean("hookActive", true)
         }
         return hookActive as Boolean
     }
