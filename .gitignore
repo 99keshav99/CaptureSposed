@@ -16,3 +16,4 @@
 .idea
 /app/build
 local.properties
+/signing-key

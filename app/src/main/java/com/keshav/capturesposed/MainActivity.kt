@@ -32,14 +32,14 @@ class MainActivity : ComponentActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_APP)
         super.onCreate(savedInstanceState)
         PreferenceManager.loadPreferences(this)
         isSwitchOn.value = PreferenceManager.isHookActive()
         setContent {
             APPTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
+                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background
                 ) {
                     AppUI(counter.intValue)
                 }

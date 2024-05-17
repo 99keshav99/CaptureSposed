@@ -4,19 +4,34 @@
     <uses-permission android:name="android.permission.DETECT_SCREEN_CAPTURE" />
 
     <application
+        android:description="@string/xposed_description"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/xposed_name"
-        android:description="@string/xposed_description">
+        android:label="@string/xposed_name">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.APP">
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".QuickTile"
+            android:exported="true"
+            android:icon="@drawable/baseline_screenshot_24"
+            android:label="@string/tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service>
     </application>
-  
+
 </manifest>
