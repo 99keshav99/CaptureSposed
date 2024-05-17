@@ -1,9 +1,7 @@
 package com.keshav.capturesposed
 
 import android.annotation.SuppressLint
-import android.graphics.Paint.Cap
-import android.os.IBinder
-import com.keshav.capturesposed.hookers.ActivityTaskManagerServiceHooker
+import com.keshav.capturesposed.hookers.WindowManagerServiceHooker
 import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface.ModuleLoadedParam
@@ -21,7 +19,7 @@ class CaptureSposed(base: XposedInterface, param: ModuleLoadedParam) : XposedMod
         super.onSystemServerLoaded(param)
 
         try {
-            ActivityTaskManagerServiceHooker.hook(param, module)
+            WindowManagerServiceHooker.hook(param, module)
         } catch (e: Exception) {
             log("[CaptureSposed] ERROR: $e")
         }
