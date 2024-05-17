@@ -51,7 +51,7 @@ object SystemUIHooker {
                         .invoke(tileHost, tileId, -1)
                 }
 
-                module?.log("[MACsposed] Tile added to quick settings panel.")
+                module?.log("[CaptureSposed] Tile added to quick settings panel.")
             }
         }
     }
