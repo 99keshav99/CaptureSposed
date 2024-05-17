@@ -5,6 +5,7 @@ xposed-api = "100"
 xposed-service = "100-1.0.0"
 appcompat = "1.6.1"
 compose = "1.6.7"
+compose-material3 = "1.2.1"
 activity-compose = "1.9.0"
 
 [libraries]
@@ -12,7 +13,7 @@ libxposed-api = { group = "io.github.libxposed", name = "api", version.ref = "xp
 libxposed-service = { group = "io.github.libxposed", name = "service", version.ref = "xposed-service" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
-compose-material = { module = "androidx.compose.material:material", version.ref = "compose" }
+compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
 compose-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
 
