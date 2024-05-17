@@ -33,27 +33,25 @@ object SystemUIHooker {
     }
 
     @XposedHooker
-    private class TileSetterHooker : Hooker {
-        companion object {
-            @JvmStatic
-            @BeforeInvocation
-            fun beforeInvocation(callback: BeforeHookCallback) {
-                if (!tileRevealed) {
-                    val tileHost = XposedHelpers.getObjectField(callback.thisObject, "mHost") as Any
-                    val tileHostClass = tileHost.javaClass as Class<*>
+    private object TileSetterHooker : Hooker {
+        @JvmStatic
+        @BeforeInvocation
+        fun beforeInvocation(callback: BeforeHookCallback) {
+            if (!tileRevealed) {
+                val tileHost = XposedHelpers.getObjectField(callback.thisObject, "mHost") as Any
+                val tileHostClass = tileHost.javaClass as Class<*>
 
-                    // Depending on the Android distribution, the ordering of parameters is different.
-                    try {
-                        tileHostClass.getDeclaredMethod("addTile", Int::class.java, String::class.java)
-                            .invoke(tileHost, -1, tileId)
-                    }
-                    catch (t: Throwable) {
-                        tileHostClass.getDeclaredMethod("addTile", String::class.java, Int::class.java)
-                            .invoke(tileHost, tileId, -1)
-                    }
-
-                    module?.log("[MACsposed] Tile added to quick settings panel.")
+                // Depending on the Android distribution, the ordering of parameters is different.
+                try {
+                    tileHostClass.getDeclaredMethod("addTile", Int::class.java, String::class.java)
+                        .invoke(tileHost, -1, tileId)
                 }
+                catch (t: Throwable) {
+                    tileHostClass.getDeclaredMethod("addTile", String::class.java, Int::class.java)
+                        .invoke(tileHost, tileId, -1)
+                }
+
+                module?.log("[MACsposed] Tile added to quick settings panel.")
             }
         }
     }
