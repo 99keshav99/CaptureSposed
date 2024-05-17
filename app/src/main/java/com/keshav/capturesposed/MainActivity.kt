@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.keshav.capturesposed.ui.theme.APPTheme
-import com.keshav.capturesposed.utils.PreferenceManager
+import com.keshav.capturesposed.utils.PrefsUtils
 
 class MainActivity : ComponentActivity() {
 
@@ -34,8 +34,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_APP)
         super.onCreate(savedInstanceState)
-        PreferenceManager.loadPreferences(this)
-        isSwitchOn.value = PreferenceManager.isHookActive()
+        PrefsUtils.loadPrefs()
+        isSwitchOn.value = PrefsUtils.isHookOn()
         setContent {
             APPTheme {
                 Surface(
@@ -74,15 +74,15 @@ class MainActivity : ComponentActivity() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "CaptureSposed:",
+                    text = "CaptureSposed",
                     fontSize = 40.sp,
                     textAlign = TextAlign.Center
                 )
                 Switch(
                     checked = isSwitchOn.value,
                     onCheckedChange = {
-                        PreferenceManager.toggleHookState()
-                        isSwitchOn.value = PreferenceManager.isHookActive()
+                        PrefsUtils.toggleHookState()
+                        isSwitchOn.value = PrefsUtils.isHookOn()
                     }
                 )
             }
