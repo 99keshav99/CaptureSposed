@@ -3,6 +3,7 @@ package com.keshav.capturesposed
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import com.keshav.capturesposed.utils.PrefsUtils
+import com.keshav.capturesposed.utils.XposedChecker
 
 class QuickTile: TileService() {
     override fun onStartListening() {
@@ -18,10 +19,15 @@ class QuickTile: TileService() {
     }
 
     private fun setButtonState() {
-        if (PrefsUtils.isHookOn())
-            qsTile.state = Tile.STATE_ACTIVE
-        else
-            qsTile.state = Tile.STATE_INACTIVE
+        if (XposedChecker.isEnabled()) {
+            if (PrefsUtils.isHookOn())
+                qsTile.state = Tile.STATE_ACTIVE
+            else
+                qsTile.state = Tile.STATE_INACTIVE
+        }
+        else {
+            qsTile.state = Tile.STATE_UNAVAILABLE
+        }
         qsTile.updateTile()
     }
 }
