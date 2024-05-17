@@ -1,6 +1,7 @@
 package com.keshav.capturesposed.hookers
 
 import android.annotation.SuppressLint
+import android.content.ComponentName
 import com.keshav.capturesposed.BuildConfig
 import io.github.libxposed.api.XposedInterface.BeforeHookCallback
 import io.github.libxposed.api.XposedInterface.Hooker
@@ -20,8 +21,8 @@ class ActivityTaskManagerServiceHooker {
             this.module = module
 
             module.hook(
-                param.classLoader.loadClass("com.android.server.wm.ActivityRecord")
-                    .getDeclaredMethod("reportScreenCaptured"),
+                param.classLoader.loadClass("com.android.server.wm.WindowManagerService")
+                    .getDeclaredMethod("notifyScreenshotListeners", Int::class.java),
                 ReportScreenCapturedHooker::class.java
             )
         }
@@ -38,7 +39,7 @@ class ActivityTaskManagerServiceHooker {
 
                     if (isHookActive!!) {
                         module?.log("[CaptureSposed] Blocked screenshot detection.")
-                        callback.returnAndSkip(null)
+                        callback.returnAndSkip(listOf<ComponentName>())
                     }
                     else {
                         module?.log("[CaptureSposed] Allowed screenshot detection.")
