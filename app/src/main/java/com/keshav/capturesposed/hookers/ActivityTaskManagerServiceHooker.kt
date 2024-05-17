@@ -1,7 +1,6 @@
 package com.keshav.capturesposed.hookers
 
 import android.annotation.SuppressLint
-import android.os.IBinder
 import com.keshav.capturesposed.BuildConfig
 import io.github.libxposed.api.XposedInterface.BeforeHookCallback
 import io.github.libxposed.api.XposedInterface.Hooker
@@ -19,26 +18,21 @@ class ActivityTaskManagerServiceHooker {
         @SuppressLint("PrivateApi")
         fun hook(param: SystemServerLoadedParam, module: XposedModule) {
             this.module = module
+
             module.hook(
-                Class.forName(
-                    "com.android.server.wm.ActivityTaskManagerService",
-                    true,
-                    param.classLoader
-                ).getDeclaredMethod(
-                    "registerScreenCaptureObserver",
-                    IBinder::class.java,
-                    Class.forName("android.app.IScreenCaptureObserver")
-                ), RegisterScreenCaptureObserverHooker::class.java
+                param.classLoader.loadClass("com.android.server.wm.ActivityRecord")
+                    .getDeclaredMethod("reportScreenCaptured"),
+                ReportScreenCapturedHooker::class.java
             )
         }
 
         @XposedHooker
-        private class RegisterScreenCaptureObserverHooker: Hooker {
+        private class ReportScreenCapturedHooker: Hooker {
             companion object {
                 @Suppress("unused")
                 @JvmStatic
                 @BeforeInvocation
-                fun beforeInvocation(callback: BeforeHookCallback) : RegisterScreenCaptureObserverHooker {
+                fun beforeInvocation(callback: BeforeHookCallback) {
                     val prefs = module?.getRemotePreferences(BuildConfig.APPLICATION_ID)
                     val isHookActive = prefs?.getBoolean("hookActive", true)
 
@@ -49,8 +43,6 @@ class ActivityTaskManagerServiceHooker {
                     else {
                         module?.log("[CaptureSposed] Allowed screenshot detection.")
                     }
-
-                    return RegisterScreenCaptureObserverHooker()
                 }
             }
         }
