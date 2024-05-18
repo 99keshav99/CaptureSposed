@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_APP)
         super.onCreate(savedInstanceState)
+        counter.intValue = savedInstanceState?.getInt("counter") ?: 0
         PrefsUtils.loadPrefs()
         isSwitchOn = mutableStateOf(PrefsUtils.isHookOn())
         PrefsUtils.getHookActiveAsLiveData().observe(this) { isActive ->
@@ -61,6 +62,11 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         registerScreenCaptureCallback(mainExecutor, screenCaptureCallback)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("counter", counter.intValue)
     }
 
     override fun onStop() {
