@@ -1,6 +1,7 @@
 package com.keshav.capturesposed.hookers
 
 import android.annotation.SuppressLint
+import android.util.ArraySet
 import com.keshav.capturesposed.BuildConfig
 import com.keshav.capturesposed.utils.XposedHelpers
 import io.github.libxposed.api.XposedInterface.BeforeHookCallback
@@ -25,11 +26,11 @@ object SystemUIHooker {
             TileSetterHooker::class.java
         )
 
-        /*module.hook(
+        module.hook(
             param.classLoader.loadClass("com.android.systemui.qs.QSTileRevealController\$1")
                 .getDeclaredMethod("run"),
             TileRevealAnimHooker::class.java
-        )*/
+        )
     }
 
     @XposedHooker
@@ -52,6 +53,27 @@ object SystemUIHooker {
                 }
 
                 module?.log("[CaptureSposed] Tile added to quick settings panel.")
+            }
+        }
+    }
+
+    @XposedHooker
+    private object TileRevealAnimHooker : Hooker {
+        @JvmStatic
+        @BeforeInvocation
+        fun beforeInvocation(callback: BeforeHookCallback) {
+            if (!tileRevealed) {
+                /*
+                    Properly fixing the unchecked cast warning with Kotlin adds more performance overhead than it is
+                    worth, so the warning is suppressed instead.
+                 */
+                @Suppress("UNCHECKED_CAST")
+                val tilesToReveal = XposedHelpers.getObjectField(XposedHelpers.getSurroundingThis(callback.thisObject),
+                    "mTilesToReveal") as ArraySet<String>
+                tilesToReveal.add(TILE_ID)
+                tileRevealed = true
+                module?.log("[CaptureSposed] Tile quick settings panel animation played. CaptureSposed will not hook " +
+                        "SystemUI on next reboot.")
             }
         }
     }
