@@ -15,6 +15,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
@@ -29,13 +30,19 @@ import com.keshav.capturesposed.utils.XposedChecker
 class MainActivity : ComponentActivity() {
 
     private var counter = mutableIntStateOf(0)
-    private var isSwitchOn = mutableStateOf(false)
+    private lateinit var isSwitchOn: MutableState<Boolean>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_APP)
         super.onCreate(savedInstanceState)
         PrefsUtils.loadPrefs()
-        isSwitchOn.value = PrefsUtils.isHookOn()
+        isSwitchOn = mutableStateOf(PrefsUtils.isHookOn())
+        PrefsUtils.getHookActiveAsLiveData().observe(this) { isActive ->
+            isActive?.let {
+                isSwitchOn.value = it
+            }
+        }
+
         setContent {
             APPTheme {
                 Surface(
@@ -84,7 +91,6 @@ class MainActivity : ComponentActivity() {
                     checked = isSwitchOn.value,
                     onCheckedChange = {
                         PrefsUtils.toggleHookState()
-                        isSwitchOn.value = PrefsUtils.isHookOn()
                     },
                     modifier = Modifier.padding(10.dp)
                 )
