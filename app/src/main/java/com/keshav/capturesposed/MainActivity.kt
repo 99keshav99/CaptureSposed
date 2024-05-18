@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.keshav.capturesposed.ui.theme.APPTheme
 import com.keshav.capturesposed.utils.PrefsUtils
+import com.keshav.capturesposed.utils.XposedChecker
 
 class MainActivity : ComponentActivity() {
 
@@ -79,6 +80,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.primary
                 )
                 Switch(
+                    enabled = XposedChecker.isEnabled(),
                     checked = isSwitchOn.value,
                     onCheckedChange = {
                         PrefsUtils.toggleHookState()
