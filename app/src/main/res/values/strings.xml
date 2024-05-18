@@ -1,5 +1,5 @@
 <resources>
     <string name="xposed_name">CaptureSposed</string>
-    <string name="xposed_description">Add Support to Suppress the Screenshot Detection API Introduced in Android 14!</string>
+    <string name="xposed_description">Add support for suppressing the Screenshot Detection API introduced in Android 14!</string>
     <string name="tile_label">Block Screenshot Detection</string>
 </resources>
