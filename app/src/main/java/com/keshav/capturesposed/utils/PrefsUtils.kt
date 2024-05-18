@@ -39,4 +39,12 @@ object PrefsUtils {
             prefEdit.apply()
         }
     }
+
+    fun markTileRevealAsDone() {
+        if (XposedChecker.isEnabled()) {
+            val prefEdit = prefs!!.edit()
+            prefEdit.putBoolean("tileRevealDone", true)
+            prefEdit.apply()
+        }
+    }
 }
