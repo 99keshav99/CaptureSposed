@@ -47,6 +47,7 @@ object PrefsUtils {
             prefEdit.putBoolean("tileRevealDone", true)
             prefEdit.apply()
         }
+    }
 
     fun getHookActiveAsLiveData(): MutableLiveData<Boolean> {
         return hookActive
