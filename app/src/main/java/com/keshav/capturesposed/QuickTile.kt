@@ -9,6 +9,7 @@ class QuickTile: TileService() {
     override fun onStartListening() {
         super.onStartListening()
         PrefsUtils.loadPrefs()
+        PrefsUtils.markTileRevealAsDone()
         setButtonState()
     }
 
