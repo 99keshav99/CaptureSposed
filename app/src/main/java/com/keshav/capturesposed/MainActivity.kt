@@ -28,14 +28,19 @@ import com.keshav.capturesposed.utils.PrefsUtils
 class MainActivity : ComponentActivity() {
 
     private var counter = mutableIntStateOf(0)
-    private var isSwitchOn = mutableStateOf(false)
+    private var isSwitchOn = mutableStateOf(PrefsUtils.isHookOn())
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_APP)
         super.onCreate(savedInstanceState)
         PrefsUtils.loadPrefs()
-        isSwitchOn.value = PrefsUtils.isHookOn()
+        PrefsUtils.getHookActiveAsLiveData().observe(this) { isActive ->
+            isActive?.let {
+                isSwitchOn.value = it
+            }
+        }
+
         setContent {
             APPTheme {
                 Surface(
@@ -74,17 +79,11 @@ class MainActivity : ComponentActivity() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "CaptureSposed",
-                    fontSize = 40.sp,
-                    textAlign = TextAlign.Center
+                    text = "CaptureSposed", fontSize = 40.sp, textAlign = TextAlign.Center
                 )
-                Switch(
-                    checked = isSwitchOn.value,
-                    onCheckedChange = {
-                        PrefsUtils.toggleHookState()
-                        isSwitchOn.value = PrefsUtils.isHookOn()
-                    }
-                )
+                Switch(checked = isSwitchOn.value, onCheckedChange = {
+                    PrefsUtils.toggleHookState()
+                })
             }
             Text(
                 text = "Counter: $counter",
