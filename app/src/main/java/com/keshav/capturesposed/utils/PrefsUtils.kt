@@ -1,13 +1,14 @@
 package com.keshav.capturesposed.utils
 
 import android.content.SharedPreferences
+import androidx.lifecycle.MutableLiveData
 import com.keshav.capturesposed.BuildConfig
 import io.github.libxposed.service.XposedService
 import io.github.libxposed.service.XposedServiceHelper
 
 object PrefsUtils {
     private var prefs: SharedPreferences? = null
-    private var hookActive: Boolean? = null
+    private var hookActive: MutableLiveData<Boolean> = MutableLiveData<Boolean>(null)
 
     fun loadPrefs() {
         XposedServiceHelper.registerListener(object : XposedServiceHelper.OnServiceListener {
@@ -25,17 +26,17 @@ object PrefsUtils {
             return false
         }
 
-        if (hookActive == null) {
-            hookActive = prefs!!.getBoolean("hookActive", true)
+        if (hookActive.value == null) {
+            hookActive.value = prefs!!.getBoolean("hookActive", true)
         }
-        return hookActive as Boolean
+        return hookActive.value as Boolean
     }
 
     fun toggleHookState() {
         if (XposedChecker.isEnabled()) {
-            hookActive = !isHookOn()
+            hookActive.value = !isHookOn()
             val prefEdit = prefs!!.edit()
-            prefEdit.putBoolean("hookActive", hookActive!!)
+            prefEdit.putBoolean("hookActive", hookActive.value!!)
             prefEdit.apply()
         }
     }
@@ -46,5 +47,8 @@ object PrefsUtils {
             prefEdit.putBoolean("tileRevealDone", true)
             prefEdit.apply()
         }
+
+    fun getHookActiveAsLiveData(): MutableLiveData<Boolean> {
+        return hookActive
     }
 }

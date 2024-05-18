@@ -66,8 +66,10 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.activity.compose)
     implementation(libs.compose.ui)
-    implementation(libs.compose.material)
+//    implementation(libs.compose.material)
+    implementation(libs.compose.material3)
     implementation(libs.libxposed.service)
     debugImplementation(libs.compose.tooling)
+    implementation(libs.libxposed.service)
     compileOnly(libs.libxposed.api)
 }
