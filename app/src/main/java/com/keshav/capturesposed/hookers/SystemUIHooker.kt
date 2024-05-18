@@ -12,7 +12,7 @@ import io.github.libxposed.api.annotations.XposedHooker
 
 object SystemUIHooker {
     var module: XposedModule? = null
-    private const val tileId = "custom(${BuildConfig.APPLICATION_ID}/.QuickTile)"
+    private const val TILE_ID = "custom(${BuildConfig.APPLICATION_ID}/.QuickTile)"
     private var tileRevealed = false
 
     @SuppressLint("PrivateApi")
@@ -44,11 +44,11 @@ object SystemUIHooker {
                 // Depending on the Android distribution, the ordering of parameters is different.
                 try {
                     tileHostClass.getDeclaredMethod("addTile", Int::class.java, String::class.java)
-                        .invoke(tileHost, -1, tileId)
+                        .invoke(tileHost, -1, TILE_ID)
                 }
                 catch (t: Throwable) {
                     tileHostClass.getDeclaredMethod("addTile", String::class.java, Int::class.java)
-                        .invoke(tileHost, tileId, -1)
+                        .invoke(tileHost, TILE_ID, -1)
                 }
 
                 module?.log("[CaptureSposed] Tile added to quick settings panel.")
