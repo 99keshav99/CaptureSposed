@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Switch
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -30,7 +30,6 @@ class MainActivity : ComponentActivity() {
     private var counter = mutableIntStateOf(0)
     private var isSwitchOn = mutableStateOf(false)
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_APP)
         super.onCreate(savedInstanceState)
@@ -39,7 +38,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             APPTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background
+                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
                     AppUI(counter.intValue)
                 }
@@ -76,14 +75,16 @@ class MainActivity : ComponentActivity() {
                 Text(
                     text = "CaptureSposed",
                     fontSize = 40.sp,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Switch(
                     checked = isSwitchOn.value,
                     onCheckedChange = {
                         PrefsUtils.toggleHookState()
                         isSwitchOn.value = PrefsUtils.isHookOn()
-                    }
+                    },
+                    modifier = Modifier.padding(10.dp)
                 )
             }
             Text(
@@ -91,6 +92,7 @@ class MainActivity : ComponentActivity() {
                 fontSize = 40.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(50.dp),
+                color = MaterialTheme.colorScheme.secondary
             )
         }
     }
