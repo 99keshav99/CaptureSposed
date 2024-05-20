@@ -10,6 +10,7 @@ CaptureSposed is an Xposed module that effectively disables this API to prevent 
 <p align="center">
   <a href="https://play.google.com/store/apps/details?id=com.keshav.capturesposed"><img src="images/download-buttons/google-play-badge.png" height="80" /></a>
   <a href="https://f-droid.org/packages/com.keshav.capturesposed/"><img src="images/download-buttons/get-it-on.png" height="80" /></a>
+  <br />
   <a href="https://apt.izzysoft.de/packages/com.keshav.capturesposed"><img src="images/download-buttons/IzzyOnDroidButton.png" height="80" /></a>
   <a href="https://github.com/99keshav99/CaptureSposed/releases"><img src="images/download-buttons/badge_github.png" height="80" /></a>
 </p>
