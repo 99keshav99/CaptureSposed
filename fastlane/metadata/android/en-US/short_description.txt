@@ -1,0 +1,1 @@
+Add support for suppressing the Screenshot Detection API introduced in Android 14!
