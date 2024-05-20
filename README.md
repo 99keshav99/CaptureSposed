@@ -5,8 +5,8 @@ With the release of Android 14, Google added an API to enable app developers to 
 
 CaptureSposed is an Xposed module that effectively disables this API to prevent apps that use it from being able to detect when a screenshot was taken.
 
-
 **⚠️ WARNING:** CaptureSposed is intended for rooted devices running Android 14 and requires Xposed. The required Xposed variant to use is LSPosed. Other Xposed variants will not work. This module cannot be guaranteed to work on all devices. In the worst case, it can cause a bootloop. Use at your own risk. Additionally, this module does not protect against screenshot detection from apps that use the pre-Android 14 approach of using file system listeners to detect screenshots ([ref 1](https://abangfadli.medium.com/shotwatch-android-screenshot-detector-library-6a75d7242109), [ref 2](https://viveksb007.wordpress.com/2017/11/10/how-snapchat-detects-when-screenshot-is-taken-hypothesis/)).
+
 <p align="center">
   <a href="https://play.google.com/store/apps/details?id=com.keshav.capturesposed"><img src="images/download-buttons/google-play-badge.png" height="80" /></a>
   <a href="https://github.com/99keshav99/CaptureSposed/releases"><img src="images/download-buttons/badge_github.png" height="80" /></a>
