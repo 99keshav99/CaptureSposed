@@ -1,5 +1,5 @@
 [versions]
-app = "8.4.0"
+app = "8.4.1"
 kotlin = "1.9.10"
 xposed-api = "100"
 xposed-service = "100-1.0.0"
