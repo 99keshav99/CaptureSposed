@@ -83,6 +83,20 @@ class MainActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            SwitchOrText(isSwitchOn)
+            Text(
+                text = "Counter: $counter",
+                fontSize = 40.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(50.dp),
+                color = MaterialTheme.colorScheme.secondary
+            )
+        }
+    }
+
+    @Composable
+    fun SwitchOrText(isSwitchOn: MutableState<Boolean>) {
+        if (XposedChecker.isEnabled()) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -92,8 +106,8 @@ class MainActivity : ComponentActivity() {
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary
                 )
+
                 Switch(
-                    enabled = XposedChecker.isEnabled(),
                     checked = isSwitchOn.value,
                     onCheckedChange = {
                         PrefsUtils.toggleHookState()
@@ -101,13 +115,15 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.padding(10.dp)
                 )
             }
+        } else {
             Text(
-                text = "Counter: $counter",
-                fontSize = 40.sp,
+                text = "CaptureSposed is not enabled. Please enable it in the LSPosed Manager, reboot your device, and try again.",
+                fontSize = 20.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(50.dp),
-                color = MaterialTheme.colorScheme.secondary
+                color = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.padding(10.dp)
             )
         }
+
     }
 }
