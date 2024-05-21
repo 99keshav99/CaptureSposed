@@ -117,7 +117,7 @@ class MainActivity : ComponentActivity() {
             }
         } else {
             Text(
-                text = "CaptureSposed is not enabled. Please enable it in the LSPosed Manager, reboot your device, and try again.",
+                text = getString(R.string.module_disabled),
                 fontSize = 20.sp,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.tertiary,
