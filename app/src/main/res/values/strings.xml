@@ -2,4 +2,5 @@
     <string name="xposed_name">CaptureSposed</string>
     <string name="xposed_description">Add support for suppressing the Screenshot Detection API introduced in Android 14!</string>
     <string name="tile_label">Block Screenshot Detection</string>
+    <string name="module_disabled">CaptureSposed is not enabled. Please enable it in the LSPosed Manager, reboot your device, and try again.</string>
 </resources>
