@@ -21,7 +21,7 @@
         <service
             android:name=".QuickTile"
             android:exported="true"
-            android:icon="@drawable/baseline_screenshot_24"
+            android:icon="@drawable/screenshot_24"
             android:label="@string/tile_label"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
