@@ -5,8 +5,9 @@
 
     <application
         android:description="@string/xposed_description"
+        android:label="@string/xposed_name"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/xposed_name">
+        android:enableOnBackInvokedCallback="true">
 
         <activity
             android:name=".MainActivity"
