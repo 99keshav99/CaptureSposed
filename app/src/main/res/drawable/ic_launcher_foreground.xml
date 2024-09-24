@@ -1,32 +1,17 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="1501"
-    android:viewportHeight="1501">
-    <group
-        android:scaleX="1.15"
-        android:scaleY="1.15"
-        android:translateX="-112.575"
-        android:translateY="-112.575">
-        <path
-            android:fillColor="#cfd8dc"
-            android:pathData="M966,560.8c-4.8,0 -8.6,3.9 -8.6,8.6v362.1c0,4.8 3.9,8.6 8.6,8.6s8.6,-3.9 8.6,-8.6v-362.1c0,-4.8 -3.9,-8.6 -8.6,-8.6ZM931.5,526.4h-362.1c-4.8,0 -8.6,3.9 -8.6,8.6s3.9,8.6 8.6,8.6h362.1c4.8,0 8.6,-3.9 8.6,-8.6s-3.9,-8.6 -8.6,-8.6ZM931.5,957.4h-362.1c-4.8,0 -8.6,3.9 -8.6,8.6s3.9,8.6 8.6,8.6h362.1c4.8,0 8.6,-3.9 8.6,-8.6s-3.9,-8.6 -8.6,-8.6ZM535,560.8c-4.8,0 -8.6,3.9 -8.6,8.6v362.1c0,4.8 3.9,8.6 8.6,8.6s8.6,-3.9 8.6,-8.6v-362.1c0,-4.8 -3.9,-8.6 -8.6,-8.6Z"
-            android:strokeWidth="0" />
-        <path
-            android:fillColor="#57a0d7"
-            android:pathData="M500.5,500.5h69v69h-69z"
-            android:strokeWidth="0" />
-        <path
-            android:fillColor="#57a0d7"
-            android:pathData="M931.5,500.5h69v69h-69z"
-            android:strokeWidth="0" />
-        <path
-            android:fillColor="#57a0d7"
-            android:pathData="M500.5,931.5h69v69h-69z"
-            android:strokeWidth="0" />
-        <path
-            android:fillColor="#57a0d7"
-            android:pathData="M931.5,931.5h69v69h-69z"
-            android:strokeWidth="0" />
-    </group>
+    android:viewportWidth="263.7"
+    android:viewportHeight="263.7">
+  <group android:scaleX="0.4"
+      android:scaleY="0.4"
+      android:translateX="79.11"
+      android:translateY="79.11">
+    <path
+        android:fillColor="@color/ic_launcher_foreground"
+        android:pathData="M224,157.7h-26.5v39.8h-39.8v26.5h39.8v39.8h26.5v-39.8h39.8v-26.5h-39.8v-39.8h0ZM25.2,224h39.8v-26.5h-26.5v-26.5H12v39.8c0,7.3 5.9,13.2 13.2,13.2ZM224,25.2c0,-7.3 -5.9,-13.2 -13.2,-13.2h-39.8v26.5h26.5v26.5h26.5V25.2ZM38.5,38.5h26.5V12H25.2c-7.3,0 -13.2,5.9 -13.2,13.2v39.8h26.5v-26.5ZM12,91.5h26.5v53H12v-53ZM197.5,91.5h26.5v39.8h-26.5v-39.8ZM91.5,12h53v26.5h-53V12ZM91.5,197.5h39.8v26.5h-39.8v-26.5Z"/>
+    <path
+        android:fillColor="@color/ic_launcher_foreground"
+        android:pathData="M135.6,118l22.3,-22.2c3.5,-3.5 3.5,-9.1 0,-12.6l-5,-5c-3.5,-3.5 -9.1,-3.5 -12.6,0l-22.2,22.2 -22.2,-22.2c-3.5,-3.5 -9.1,-3.5 -12.6,0l-5,5c-3.5,3.5 -3.5,9.1 0,12.6l22.2,22.2 -22.2,22.2c-3.5,3.5 -3.5,9.1 0,12.6l5,5c3.5,3.5 9.1,3.5 12.6,0l22.2,-22.2 22.2,22.2c3.5,3.5 9.1,3.5 12.6,0l5,-5c3.5,-3.5 3.5,-9.1 0,-12.6 0,0 -22.2,-22.2 -22.3,-22.2h0Z"/>
+  </group>
 </vector>
