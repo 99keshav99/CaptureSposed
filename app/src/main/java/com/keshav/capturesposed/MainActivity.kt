@@ -4,12 +4,16 @@ import android.app.Activity.ScreenCaptureCallback
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,6 +51,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var isSwitchOn: MutableState<Boolean>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         setTheme(R.style.Theme_APP)
         super.onCreate(savedInstanceState)
         counter.intValue = savedInstanceState?.getInt("counter") ?: 0
@@ -108,6 +113,7 @@ class MainActivity : ComponentActivity() {
             modifier = modifier
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.displayCutout)
         ) { p ->
             Column(
                 modifier = modifier
