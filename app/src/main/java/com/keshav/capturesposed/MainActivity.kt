@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer
                 ) {
-                    AppUI(counter.intValue)
+                    AppUI()
                 }
             }
         }
@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun AppUI(counter: Int, modifier: Modifier = Modifier) {
+    fun AppUI(modifier: Modifier = Modifier) {
         val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
         Scaffold(
