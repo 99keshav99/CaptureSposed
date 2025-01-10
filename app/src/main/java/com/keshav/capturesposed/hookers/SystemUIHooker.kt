@@ -13,12 +13,14 @@ import io.github.libxposed.api.annotations.XposedHooker
 
 object SystemUIHooker {
     var module: XposedModule? = null
+    var classLoader: ClassLoader? = null
     private const val TILE_ID = "custom(${BuildConfig.APPLICATION_ID}/.QuickTile)"
     private var tileRevealed = false
 
     @SuppressLint("PrivateApi")
     fun hook(param: PackageLoadedParam, module: XposedModule) {
         this.module = module
+        classLoader = param.classLoader
 
         module.hook(
             param.classLoader.loadClass("com.android.systemui.qs.QSPanelControllerBase")
@@ -35,6 +37,7 @@ object SystemUIHooker {
 
     @XposedHooker
     private object TileSetterHooker : Hooker {
+        @SuppressLint("PrivateApi")
         @JvmStatic
         @BeforeInvocation
         fun beforeInvocation(callback: BeforeHookCallback) {
@@ -42,17 +45,38 @@ object SystemUIHooker {
                 val tileHost = XposedHelpers.getObjectField(callback.thisObject, "mHost") as Any
                 val tileHostClass = tileHost.javaClass as Class<*>
 
-                // Depending on the Android distribution, the ordering of parameters is different.
+                /*
+                    The range of supported Android versions for CaptureSposed (14 through 15 QPR 1 as of this comment) use
+                    several different approaches for adding tiles to the tile drawer. This collection of try-catch blocks
+                    accounts for the different approaches that are used. Ideally, using conditional checks to identify the
+                    Android version would be preferred, but since different OEMs may use different variations across the same
+                    Android version, using try-catch blocks is safer.
+                 */
                 try {
-                    tileHostClass.getDeclaredMethod("addTile", Int::class.java, String::class.java)
-                        .invoke(tileHost, -1, TILE_ID)
+                    val tileSpecClass = classLoader!!.loadClass("com.android.systemui.qs.pipeline.shared.TileSpec\$Companion")
+                    val createMethod = tileSpecClass.getDeclaredMethod("create", String::class.java)
+                    val tileSpecObject = createMethod.invoke(null, TILE_ID) as Any
+                    val componentName = XposedHelpers.getObjectField(tileSpecObject, "componentName") as Any
+
+                    tileHostClass.getDeclaredMethod("addTile",
+                        classLoader!!.loadClass("android.content.ComponentName"),
+                        Boolean::class.javaPrimitiveType)
+                        .invoke(tileHost, componentName, true)
+
+                    module?.log("[CaptureSposed] Tile added to quick settings panel.")
                 }
                 catch (t: Throwable) {
-                    tileHostClass.getDeclaredMethod("addTile", String::class.java, Int::class.java)
-                        .invoke(tileHost, TILE_ID, -1)
+                    try {
+                        tileHostClass.getDeclaredMethod("addTile", Int::class.java, String::class.java)
+                            .invoke(tileHost, -1, TILE_ID)
+                        module?.log("[CaptureSposed] Tile added to quick settings panel.")
+                    }
+                    catch (t: Throwable) {
+                        tileHostClass.getDeclaredMethod("addTile", String::class.java, Int::class.java)
+                            .invoke(tileHost, TILE_ID, -1)
+                        module?.log("[CaptureSposed] Tile added to quick settings panel.")
+                    }
                 }
-
-                module?.log("[CaptureSposed] Tile added to quick settings panel.")
             }
         }
     }
