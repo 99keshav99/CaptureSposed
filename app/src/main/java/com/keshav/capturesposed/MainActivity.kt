@@ -53,6 +53,7 @@ class MainActivity : ComponentActivity() {
     private var screenshotCounter = mutableIntStateOf(0)
     private var screenRecordingActive = mutableStateOf("")
     private lateinit var isScreenshotSwitchOn: MutableState<Boolean>
+    private lateinit var isScreenRecordSwitchOn: MutableState<Boolean>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -61,9 +62,15 @@ class MainActivity : ComponentActivity() {
         screenshotCounter.intValue = savedInstanceState?.getInt("counter") ?: 0
         PrefsUtils.loadPrefs()
         isScreenshotSwitchOn = mutableStateOf(PrefsUtils.isScreenshotHookOn())
+        isScreenRecordSwitchOn = mutableStateOf(PrefsUtils.isScreenRecordHookOn())
         PrefsUtils.getScreenshotHookActiveAsLiveData().observe(this) { isActive ->
             isActive?.let {
                 isScreenshotSwitchOn.value = it
+            }
+        }
+        PrefsUtils.getScreenRecordHookActiveAsLiveData().observe(this) { isActive ->
+            isActive?.let {
+                isScreenRecordSwitchOn.value = it
             }
         }
 
@@ -162,10 +169,8 @@ class MainActivity : ComponentActivity() {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ){
-                    if(XposedChecker.isEnabled() && isScreenshotSwitchOn.value){
-                        Icon(painterResource(R.drawable.checklist_24), getString(R.string.running))
-                    }else if (XposedChecker.isEnabled() && !isScreenshotSwitchOn.value){
-                        Icon(painterResource(R.drawable.checklist_24), getString(R.string.stopped))
+                    if(XposedChecker.isEnabled()){
+                        Icon(painterResource(R.drawable.checklist_24), getString(R.string.status))
                     }else{
                         Icon(painterResource(R.drawable.error_24), getString(R.string.error))
                     }
@@ -198,6 +203,36 @@ class MainActivity : ComponentActivity() {
                             onCheckedChange = { PrefsUtils.toggleScreenshotHookState() },
                             modifier = Modifier.padding(10.dp)
                         )
+                    }
+                    // If Android version is 15 or newer, show toggle for screen recording.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ){
+                            if(isScreenRecordSwitchOn.value){
+                                Text(
+                                    text = getString(R.string.screen_record_status_blocked),
+                                    fontSize = 16.sp,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }else{
+                                Text(
+                                    text = getString(R.string.screen_record_status_allowed),
+                                    fontSize = 16.sp,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
+                            Switch(
+                                checked = isScreenRecordSwitchOn.value,
+                                onCheckedChange = { PrefsUtils.toggleScreenRecordHookState() },
+                                modifier = Modifier.padding(10.dp)
+                            )
+                        }
                     }
                 } else {
                     Text(

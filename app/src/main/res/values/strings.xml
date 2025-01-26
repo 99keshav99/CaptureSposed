@@ -6,8 +6,9 @@
     <string name="status_title">Status</string>
     <string name="screenshot_status_blocked">Screenshot detection is blocked</string>
     <string name="screenshot_status_allowed">Screenshot detection is allowed</string>
+    <string name="screen_record_status_blocked">Recording detection is blocked</string>
+    <string name="screen_record_status_allowed">Recording detection is allowed</string>
     <string name="card_title_testing">Testing</string>
-    <string name="running">Running</string>
-    <string name="stopped">Stopped</string>
+    <string name="status">Status</string>
     <string name="error">Error</string>
 </resources>

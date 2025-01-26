@@ -9,6 +9,7 @@ import io.github.libxposed.service.XposedServiceHelper
 object PrefsUtils {
     private var prefs: SharedPreferences? = null
     private var screenshotHookActive: MutableLiveData<Boolean> = MutableLiveData<Boolean>(null)
+    private var screenRecordHookActive: MutableLiveData<Boolean> = MutableLiveData<Boolean>(null)
 
     fun loadPrefs() {
         XposedServiceHelper.registerListener(object : XposedServiceHelper.OnServiceListener {
@@ -22,21 +23,37 @@ object PrefsUtils {
     }
 
     fun isScreenshotHookOn(): Boolean {
+        return isHookOn(screenshotHookActive, "screenshotHookActive")
+    }
+
+    fun isScreenRecordHookOn(): Boolean {
+        return isHookOn(screenRecordHookActive, "screenRecordHookActive")
+    }
+
+    private fun isHookOn(liveData: MutableLiveData<Boolean>, prefKey: String): Boolean {
         if (!XposedChecker.isEnabled()) {
             return false
         }
 
-        if (screenshotHookActive.value == null) {
-            screenshotHookActive.value = prefs!!.getBoolean("screenshotHookActive", true)
+        if (liveData.value == null) {
+            liveData.value = prefs!!.getBoolean(prefKey, true)
         }
-        return screenshotHookActive.value as Boolean
+        return liveData.value as Boolean
     }
 
     fun toggleScreenshotHookState() {
+        setHookState(screenshotHookActive, "screenshotHookActive", !isScreenshotHookOn())
+    }
+
+    fun toggleScreenRecordHookState() {
+        setHookState(screenRecordHookActive, "screenRecordHookActive", !isScreenRecordHookOn())
+    }
+
+    private fun setHookState(liveData: MutableLiveData<Boolean>, prefKey: String, prefVal: Boolean) {
         if (XposedChecker.isEnabled()) {
-            screenshotHookActive.value = !isScreenshotHookOn()
+            liveData.value = prefVal
             val prefEdit = prefs!!.edit()
-            prefEdit.putBoolean("screenshotHookActive", screenshotHookActive.value!!)
+            prefEdit.putBoolean(prefKey, prefVal)
             prefEdit.apply()
         }
     }
@@ -51,5 +68,9 @@ object PrefsUtils {
 
     fun getScreenshotHookActiveAsLiveData(): MutableLiveData<Boolean> {
         return screenshotHookActive
+    }
+
+    fun getScreenRecordHookActiveAsLiveData(): MutableLiveData<Boolean> {
+        return screenRecordHookActive
     }
 }
