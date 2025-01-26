@@ -163,9 +163,9 @@ class MainActivity : ComponentActivity() {
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ){
                     if(XposedChecker.isEnabled() && isSwitchOn.value){
-                        Icon(painterResource(R.drawable.okay_24), getString(R.string.running))
+                        Icon(painterResource(R.drawable.checklist_24), getString(R.string.running))
                     }else if (XposedChecker.isEnabled() && !isSwitchOn.value){
-                        Icon(painterResource(R.drawable.disabled_24), getString(R.string.stopped))
+                        Icon(painterResource(R.drawable.checklist_24), getString(R.string.stopped))
                     }else{
                         Icon(painterResource(R.drawable.error_24), getString(R.string.error))
                     }
@@ -220,7 +220,7 @@ class MainActivity : ComponentActivity() {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ){
-                    Icon(painterResource(R.drawable.checklist_24), getString(R.string.card_title_testing))
+                    Icon(painterResource(R.drawable.test_tube_24), getString(R.string.card_title_testing))
                     Text(getString(R.string.card_title_testing), fontSize = 24.sp)
                 }
                 Text(
