@@ -1,7 +1,9 @@
 package com.keshav.capturesposed
 
 import android.app.Activity.ScreenCaptureCallback
+import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager.SCREEN_RECORDING_STATE_VISIBLE
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -44,10 +46,12 @@ import androidx.core.content.ContextCompat.getString
 import com.keshav.capturesposed.ui.theme.APPTheme
 import com.keshav.capturesposed.utils.PrefsUtils
 import com.keshav.capturesposed.utils.XposedChecker
+import java.util.function.Consumer
 
 class MainActivity : ComponentActivity() {
 
     private var counter = mutableIntStateOf(0)
+    private var screenRecordingActive = mutableStateOf(false)
     private lateinit var isSwitchOn: MutableState<Boolean>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,9 +82,24 @@ class MainActivity : ComponentActivity() {
         counter.intValue++
     }
 
+    private val screenRecordCallback = Consumer<Int> { state ->
+        if (state == SCREEN_RECORDING_STATE_VISIBLE) {
+            screenRecordingActive.value = true
+        }
+        else {
+            screenRecordingActive.value = false
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         registerScreenCaptureCallback(mainExecutor, screenCaptureCallback)
+
+        // If Android version is 15 or newer, add screen record callback.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            screenRecordCallback.accept(
+                windowManager.addScreenRecordingCallback(mainExecutor, screenRecordCallback))
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -91,6 +110,11 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         unregisterScreenCaptureCallback(screenCaptureCallback)
+
+        // If Android version is 15 or newer, remove screen record callback.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            windowManager.removeScreenRecordingCallback(screenRecordCallback)
+        }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -206,6 +230,16 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.padding(10.dp),
                     color = MaterialTheme.colorScheme.onSurface
                 )
+                // If Android version is 15 or newer, show recording status.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    Text(
+                        text = "Recording in Progress: ${screenRecordingActive.value}",
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.padding(10.dp),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
         }
     }
