@@ -58,7 +58,7 @@ object PrefsUtils {
         }
     }
 
-    fun markScreenshotTileRevealAsDone() {
+    fun markTileRevealAsDone() {
         if (XposedChecker.isEnabled()) {
             val prefEdit = prefs!!.edit()
             prefEdit.putBoolean("tileRevealDone", true)
