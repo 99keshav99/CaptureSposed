@@ -8,7 +8,7 @@ import io.github.libxposed.service.XposedServiceHelper
 
 object PrefsUtils {
     private var prefs: SharedPreferences? = null
-    private var hookActive: MutableLiveData<Boolean> = MutableLiveData<Boolean>(null)
+    private var screenshotHookActive: MutableLiveData<Boolean> = MutableLiveData<Boolean>(null)
 
     fun loadPrefs() {
         XposedServiceHelper.registerListener(object : XposedServiceHelper.OnServiceListener {
@@ -21,27 +21,27 @@ object PrefsUtils {
         })
     }
 
-    fun isHookOn(): Boolean {
+    fun isScreenshotHookOn(): Boolean {
         if (!XposedChecker.isEnabled()) {
             return false
         }
 
-        if (hookActive.value == null) {
-            hookActive.value = prefs!!.getBoolean("hookActive", true)
+        if (screenshotHookActive.value == null) {
+            screenshotHookActive.value = prefs!!.getBoolean("screenshotHookActive", true)
         }
-        return hookActive.value as Boolean
+        return screenshotHookActive.value as Boolean
     }
 
-    fun toggleHookState() {
+    fun toggleScreenshotHookState() {
         if (XposedChecker.isEnabled()) {
-            hookActive.value = !isHookOn()
+            screenshotHookActive.value = !isScreenshotHookOn()
             val prefEdit = prefs!!.edit()
-            prefEdit.putBoolean("hookActive", hookActive.value!!)
+            prefEdit.putBoolean("screenshotHookActive", screenshotHookActive.value!!)
             prefEdit.apply()
         }
     }
 
-    fun markTileRevealAsDone() {
+    fun markScreenshotTileRevealAsDone() {
         if (XposedChecker.isEnabled()) {
             val prefEdit = prefs!!.edit()
             prefEdit.putBoolean("tileRevealDone", true)
@@ -49,7 +49,7 @@ object PrefsUtils {
         }
     }
 
-    fun getHookActiveAsLiveData(): MutableLiveData<Boolean> {
-        return hookActive
+    fun getScreenshotHookActiveAsLiveData(): MutableLiveData<Boolean> {
+        return screenshotHookActive
     }
 }

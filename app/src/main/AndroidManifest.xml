@@ -21,7 +21,7 @@
         </activity>
 
         <service
-            android:name=".QuickTile"
+            android:name=".tiles.ScreenshotQuickTile"
             android:exported="true"
             android:icon="@drawable/screenshot_24"
             android:label="@string/tile_label"

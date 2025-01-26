@@ -14,7 +14,7 @@ import io.github.libxposed.api.annotations.XposedHooker
 object SystemUIHooker {
     var module: XposedModule? = null
     var classLoader: ClassLoader? = null
-    private const val TILE_ID = "custom(${BuildConfig.APPLICATION_ID}/.QuickTile)"
+    private const val SCREENSHOT_TILE_ID = "custom(${BuildConfig.APPLICATION_ID}/.tiles.ScreenshotQuickTile)"
     private var tileRevealed = false
 
     @SuppressLint("PrivateApi")
@@ -55,7 +55,7 @@ object SystemUIHooker {
                 try {
                     val tileSpecClass = classLoader!!.loadClass("com.android.systemui.qs.pipeline.shared.TileSpec\$Companion")
                     val createMethod = tileSpecClass.getDeclaredMethod("create", String::class.java)
-                    val tileSpecObject = createMethod.invoke(null, TILE_ID) as Any
+                    val tileSpecObject = createMethod.invoke(null, SCREENSHOT_TILE_ID) as Any
                     val componentName = XposedHelpers.getObjectField(tileSpecObject, "componentName") as Any
 
                     tileHostClass.getDeclaredMethod("addTile",
@@ -68,12 +68,12 @@ object SystemUIHooker {
                 catch (t: Throwable) {
                     try {
                         tileHostClass.getDeclaredMethod("addTile", Int::class.java, String::class.java)
-                            .invoke(tileHost, -1, TILE_ID)
+                            .invoke(tileHost, -1, SCREENSHOT_TILE_ID)
                         module?.log("[CaptureSposed] Tile added to quick settings panel.")
                     }
                     catch (t: Throwable) {
                         tileHostClass.getDeclaredMethod("addTile", String::class.java, Int::class.java)
-                            .invoke(tileHost, TILE_ID, -1)
+                            .invoke(tileHost, SCREENSHOT_TILE_ID, -1)
                         module?.log("[CaptureSposed] Tile added to quick settings panel.")
                     }
                 }
@@ -94,7 +94,7 @@ object SystemUIHooker {
                 @Suppress("UNCHECKED_CAST")
                 val tilesToReveal = XposedHelpers.getObjectField(XposedHelpers.getSurroundingThis(callback.thisObject),
                     "mTilesToReveal") as ArraySet<String>
-                tilesToReveal.add(TILE_ID)
+                tilesToReveal.add(SCREENSHOT_TILE_ID)
                 tileRevealed = true
                 module?.log("[CaptureSposed] Tile quick settings panel animation played. CaptureSposed will not hook " +
                         "SystemUI on next reboot.")

@@ -50,20 +50,20 @@ import java.util.function.Consumer
 
 class MainActivity : ComponentActivity() {
 
-    private var counter = mutableIntStateOf(0)
-    private var screenRecordingActive = mutableStateOf(false)
-    private lateinit var isSwitchOn: MutableState<Boolean>
+    private var screenshotCounter = mutableIntStateOf(0)
+    private var screenRecordingActive = mutableStateOf("")
+    private lateinit var isScreenshotSwitchOn: MutableState<Boolean>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         setTheme(R.style.Theme_APP)
         super.onCreate(savedInstanceState)
-        counter.intValue = savedInstanceState?.getInt("counter") ?: 0
+        screenshotCounter.intValue = savedInstanceState?.getInt("counter") ?: 0
         PrefsUtils.loadPrefs()
-        isSwitchOn = mutableStateOf(PrefsUtils.isHookOn())
-        PrefsUtils.getHookActiveAsLiveData().observe(this) { isActive ->
+        isScreenshotSwitchOn = mutableStateOf(PrefsUtils.isScreenshotHookOn())
+        PrefsUtils.getScreenshotHookActiveAsLiveData().observe(this) { isActive ->
             isActive?.let {
-                isSwitchOn.value = it
+                isScreenshotSwitchOn.value = it
             }
         }
 
@@ -79,15 +79,15 @@ class MainActivity : ComponentActivity() {
     }
 
     private val screenCaptureCallback = ScreenCaptureCallback {
-        counter.intValue++
+        screenshotCounter.intValue++
     }
 
     private val screenRecordCallback = Consumer<Int> { state ->
         if (state == SCREEN_RECORDING_STATE_VISIBLE) {
-            screenRecordingActive.value = true
+            screenRecordingActive.value = "YES"
         }
         else {
-            screenRecordingActive.value = false
+            screenRecordingActive.value = "NO"
         }
     }
 
@@ -104,7 +104,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt("counter", counter.intValue)
+        outState.putInt("counter", screenshotCounter.intValue)
     }
 
     override fun onStop() {
@@ -148,23 +148,23 @@ class MainActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.spacedBy(20.dp),
                 horizontalAlignment = Alignment.Start
             ) {
-                MainCard(isSwitchOn)
+                MainCard(isScreenshotSwitchOn)
                 TestCard()
             }
         }
     }
 
     @Composable
-    fun MainCard(isSwitchOn: MutableState<Boolean>) {
+    fun MainCard(isScreenshotSwitchOn: MutableState<Boolean>) {
         OutlinedCard(modifier = Modifier.fillMaxWidth()){
             Column(modifier = Modifier.padding(16.dp)){
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ){
-                    if(XposedChecker.isEnabled() && isSwitchOn.value){
+                    if(XposedChecker.isEnabled() && isScreenshotSwitchOn.value){
                         Icon(painterResource(R.drawable.checklist_24), getString(R.string.running))
-                    }else if (XposedChecker.isEnabled() && !isSwitchOn.value){
+                    }else if (XposedChecker.isEnabled() && !isScreenshotSwitchOn.value){
                         Icon(painterResource(R.drawable.checklist_24), getString(R.string.stopped))
                     }else{
                         Icon(painterResource(R.drawable.error_24), getString(R.string.error))
@@ -177,16 +177,16 @@ class MainActivity : ComponentActivity() {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ){
-                        if(isSwitchOn.value){
+                        if(isScreenshotSwitchOn.value){
                             Text(
-                                text = getString(R.string.status_running),
+                                text = getString(R.string.screenshot_status_blocked),
                                 fontSize = 16.sp,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                         }else{
                             Text(
-                                text = getString(R.string.status_stopped),
+                                text = getString(R.string.screenshot_status_allowed),
                                 fontSize = 16.sp,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -194,8 +194,8 @@ class MainActivity : ComponentActivity() {
                         }
 
                         Switch(
-                            checked = isSwitchOn.value,
-                            onCheckedChange = { PrefsUtils.toggleHookState() },
+                            checked = isScreenshotSwitchOn.value,
+                            onCheckedChange = { PrefsUtils.toggleScreenshotHookState() },
                             modifier = Modifier.padding(10.dp)
                         )
                     }
@@ -224,7 +224,7 @@ class MainActivity : ComponentActivity() {
                     Text(getString(R.string.card_title_testing), fontSize = 24.sp)
                 }
                 Text(
-                    text = "Counter: ${counter.intValue}",
+                    text = "Screenshot Counter: ${screenshotCounter.intValue}",
                     fontSize = 20.sp,
                     textAlign = TextAlign.Start,
                     modifier = Modifier.padding(10.dp),
