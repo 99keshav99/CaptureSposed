@@ -1,7 +1,9 @@
 package com.keshav.capturesposed
 
 import android.app.Activity.ScreenCaptureCallback
+import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager.SCREEN_RECORDING_STATE_VISIBLE
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -44,22 +46,31 @@ import androidx.core.content.ContextCompat.getString
 import com.keshav.capturesposed.ui.theme.APPTheme
 import com.keshav.capturesposed.utils.PrefsUtils
 import com.keshav.capturesposed.utils.XposedChecker
+import java.util.function.Consumer
 
 class MainActivity : ComponentActivity() {
 
-    private var counter = mutableIntStateOf(0)
-    private lateinit var isSwitchOn: MutableState<Boolean>
+    private var screenshotCounter = mutableIntStateOf(0)
+    private var screenRecordingActive = mutableStateOf("")
+    private lateinit var isScreenshotSwitchOn: MutableState<Boolean>
+    private lateinit var isScreenRecordSwitchOn: MutableState<Boolean>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         setTheme(R.style.Theme_APP)
         super.onCreate(savedInstanceState)
-        counter.intValue = savedInstanceState?.getInt("counter") ?: 0
+        screenshotCounter.intValue = savedInstanceState?.getInt("counter") ?: 0
         PrefsUtils.loadPrefs()
-        isSwitchOn = mutableStateOf(PrefsUtils.isHookOn())
-        PrefsUtils.getHookActiveAsLiveData().observe(this) { isActive ->
+        isScreenshotSwitchOn = mutableStateOf(PrefsUtils.isScreenshotHookOn())
+        isScreenRecordSwitchOn = mutableStateOf(PrefsUtils.isScreenRecordHookOn())
+        PrefsUtils.getScreenshotHookActiveAsLiveData().observe(this) { isActive ->
             isActive?.let {
-                isSwitchOn.value = it
+                isScreenshotSwitchOn.value = it
+            }
+        }
+        PrefsUtils.getScreenRecordHookActiveAsLiveData().observe(this) { isActive ->
+            isActive?.let {
+                isScreenRecordSwitchOn.value = it
             }
         }
 
@@ -75,22 +86,42 @@ class MainActivity : ComponentActivity() {
     }
 
     private val screenCaptureCallback = ScreenCaptureCallback {
-        counter.intValue++
+        screenshotCounter.intValue++
+    }
+
+    private val screenRecordCallback = Consumer<Int> { state ->
+        if (state == SCREEN_RECORDING_STATE_VISIBLE) {
+            screenRecordingActive.value = "YES"
+        }
+        else {
+            screenRecordingActive.value = "NO"
+        }
     }
 
     override fun onStart() {
         super.onStart()
         registerScreenCaptureCallback(mainExecutor, screenCaptureCallback)
+
+        // If Android version is 15 or newer, add screen record callback.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            screenRecordCallback.accept(
+                windowManager.addScreenRecordingCallback(mainExecutor, screenRecordCallback))
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt("counter", counter.intValue)
+        outState.putInt("counter", screenshotCounter.intValue)
     }
 
     override fun onStop() {
         super.onStop()
         unregisterScreenCaptureCallback(screenCaptureCallback)
+
+        // If Android version is 15 or newer, remove screen record callback.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            windowManager.removeScreenRecordingCallback(screenRecordCallback)
+        }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -124,24 +155,22 @@ class MainActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.spacedBy(20.dp),
                 horizontalAlignment = Alignment.Start
             ) {
-                MainCard(isSwitchOn)
+                MainCard(isScreenshotSwitchOn)
                 TestCard()
             }
         }
     }
 
     @Composable
-    fun MainCard(isSwitchOn: MutableState<Boolean>) {
+    fun MainCard(isScreenshotSwitchOn: MutableState<Boolean>) {
         OutlinedCard(modifier = Modifier.fillMaxWidth()){
             Column(modifier = Modifier.padding(16.dp)){
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ){
-                    if(XposedChecker.isEnabled() && isSwitchOn.value){
-                        Icon(painterResource(R.drawable.okay_24), getString(R.string.running))
-                    }else if (XposedChecker.isEnabled() && !isSwitchOn.value){
-                        Icon(painterResource(R.drawable.disabled_24), getString(R.string.stopped))
+                    if(XposedChecker.isEnabled()){
+                        Icon(painterResource(R.drawable.checklist_24), getString(R.string.status))
                     }else{
                         Icon(painterResource(R.drawable.error_24), getString(R.string.error))
                     }
@@ -153,16 +182,16 @@ class MainActivity : ComponentActivity() {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ){
-                        if(isSwitchOn.value){
+                        if(isScreenshotSwitchOn.value){
                             Text(
-                                text = getString(R.string.status_running),
+                                text = getString(R.string.screenshot_status_blocked),
                                 fontSize = 16.sp,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                         }else{
                             Text(
-                                text = getString(R.string.status_stopped),
+                                text = getString(R.string.screenshot_status_allowed),
                                 fontSize = 16.sp,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -170,10 +199,40 @@ class MainActivity : ComponentActivity() {
                         }
 
                         Switch(
-                            checked = isSwitchOn.value,
-                            onCheckedChange = { PrefsUtils.toggleHookState() },
+                            checked = isScreenshotSwitchOn.value,
+                            onCheckedChange = { PrefsUtils.toggleScreenshotHookState() },
                             modifier = Modifier.padding(10.dp)
                         )
+                    }
+                    // If Android version is 15 or newer, show toggle for screen recording.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ){
+                            if(isScreenRecordSwitchOn.value){
+                                Text(
+                                    text = getString(R.string.screen_record_status_blocked),
+                                    fontSize = 16.sp,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }else{
+                                Text(
+                                    text = getString(R.string.screen_record_status_allowed),
+                                    fontSize = 16.sp,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
+                            Switch(
+                                checked = isScreenRecordSwitchOn.value,
+                                onCheckedChange = { PrefsUtils.toggleScreenRecordHookState() },
+                                modifier = Modifier.padding(10.dp)
+                            )
+                        }
                     }
                 } else {
                     Text(
@@ -196,16 +255,26 @@ class MainActivity : ComponentActivity() {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ){
-                    Icon(painterResource(R.drawable.checklist_24), getString(R.string.card_title_testing))
+                    Icon(painterResource(R.drawable.test_tube_24), getString(R.string.card_title_testing))
                     Text(getString(R.string.card_title_testing), fontSize = 24.sp)
                 }
                 Text(
-                    text = "Counter: ${counter.intValue}",
+                    text = "Screenshot Counter: ${screenshotCounter.intValue}",
                     fontSize = 20.sp,
                     textAlign = TextAlign.Start,
                     modifier = Modifier.padding(10.dp),
                     color = MaterialTheme.colorScheme.onSurface
                 )
+                // If Android version is 15 or newer, show recording status.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    Text(
+                        text = "Recording in Progress: ${screenRecordingActive.value}",
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.padding(10.dp),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
         }
     }

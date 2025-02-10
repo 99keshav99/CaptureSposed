@@ -32,7 +32,7 @@ object WindowManagerServiceHooker {
             @BeforeInvocation
             fun beforeInvocation(callback: BeforeHookCallback) {
                 val prefs = module?.getRemotePreferences(BuildConfig.APPLICATION_ID)
-                val isHookActive = prefs?.getBoolean("hookActive", true)
+                val isHookActive = prefs?.getBoolean("screenshotHookActive", true)
 
                 if (isHookActive!!) {
                     module?.log("[CaptureSposed] Blocked screenshot detection.")
