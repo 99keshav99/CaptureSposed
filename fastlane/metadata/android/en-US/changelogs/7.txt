@@ -1,0 +1,1 @@
+This release introduces a new icon for CaptureSposed and fixes an issue with the quick settings tile not being added to the dropdown panel automatically on Android 15 QPR1 due to changes introduced to this update by Google.
