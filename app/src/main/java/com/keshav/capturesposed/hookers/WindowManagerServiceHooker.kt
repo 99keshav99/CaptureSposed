@@ -81,7 +81,9 @@ object WindowManagerServiceHooker {
                         // The hook is active, so trigger callbacks to report that recording has stopped.
                         val onScreenRecordingStopMethod = screenRecordingCallbackControllerClass.getDeclaredMethod("onScreenRecordingStop")
                         onScreenRecordingStopMethod.isAccessible = true
+                        ScreenRecordingCallbackControllerHooker.allowMediaProjectionInfoCacheWipe = false
                         onScreenRecordingStopMethod.invoke(mScreenRecordingCallbackController)
+                        ScreenRecordingCallbackControllerHooker.allowMediaProjectionInfoCacheWipe = true
                     }
                     else {
                         // The hook is inactive, so trigger callbacks to report that recording has started.
