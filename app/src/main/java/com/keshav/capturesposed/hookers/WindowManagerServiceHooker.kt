@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.os.Build
 import android.os.ResultReceiver
+import android.util.ArraySet
 import com.keshav.capturesposed.BuildConfig
 import com.keshav.capturesposed.utils.XposedHelpers
 import io.github.libxposed.api.XposedInterface.BeforeHookCallback
@@ -70,28 +71,21 @@ object WindowManagerServiceHooker {
                 // This will intercept command: wm refresh-recording-callbacks
                 val wmCommandArgs = callback.args[3] as Array<*>
                 if (wmCommandArgs.size == 1 && wmCommandArgs[0] == "refresh-recording-callbacks") {
-                    val prefs = module?.getRemotePreferences(BuildConfig.APPLICATION_ID)
-                    val isHookActive = prefs?.getBoolean("screenRecordHookActive", true)
-
                     val mScreenRecordingCallbackController = XposedHelpers.getObjectField(callback.thisObject,
                         "mScreenRecordingCallbackController") as Any
                     val screenRecordingCallbackControllerClass = mScreenRecordingCallbackController::class.java
 
-                    if (isHookActive!!) {
-                        // The hook is active, so trigger callbacks to report that recording has stopped.
-                        val onScreenRecordingStopMethod = screenRecordingCallbackControllerClass.getDeclaredMethod("onScreenRecordingStop")
-                        onScreenRecordingStopMethod.isAccessible = true
-                        ScreenRecordingCallbackControllerHooker.allowMediaProjectionInfoCacheWipe = false
-                        onScreenRecordingStopMethod.invoke(mScreenRecordingCallbackController)
-                        ScreenRecordingCallbackControllerHooker.allowMediaProjectionInfoCacheWipe = true
-                    }
-                    else {
-                        // The hook is inactive, so trigger callbacks to report that recording has started.
-                        val onScreenRecordingStartMethod = screenRecordingCallbackControllerClass.getDeclaredMethod("onScreenRecordingStart",
-                            classLoader!!.loadClass("android.media.projection.MediaProjectionInfo"))
-                        onScreenRecordingStartMethod.isAccessible = true
-                        onScreenRecordingStartMethod.invoke(mScreenRecordingCallbackController, null)
-                    }
+                    val getRecordedUidsMethod = screenRecordingCallbackControllerClass.getDeclaredMethod("getRecordedUids")
+                    val dispatchCallbacksMethod = screenRecordingCallbackControllerClass.getDeclaredMethod("dispatchCallbacks",
+                        ArraySet::class.java, Boolean::class.javaPrimitiveType)
+
+                    getRecordedUidsMethod.isAccessible = true
+                    dispatchCallbacksMethod.isAccessible = true
+
+                    val recordedUids: Any? = getRecordedUidsMethod.invoke(mScreenRecordingCallbackController)
+                    val mRecordedWC = XposedHelpers.getObjectField(mScreenRecordingCallbackController, "mRecordedWC")
+
+                    dispatchCallbacksMethod.invoke(mScreenRecordingCallbackController, recordedUids, mRecordedWC != null)
                 }
             }
         }
