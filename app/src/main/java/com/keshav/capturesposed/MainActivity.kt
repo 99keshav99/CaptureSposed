@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getString
 import com.keshav.capturesposed.ui.theme.APPTheme
 import com.keshav.capturesposed.utils.PrefsUtils
+import com.keshav.capturesposed.utils.SuUtils
 import com.keshav.capturesposed.utils.XposedChecker
 import java.util.function.Consumer
 
@@ -176,7 +177,26 @@ class MainActivity : ComponentActivity() {
                     }
                     Text(getString(R.string.status_title), fontSize = 24.sp)
                 }
-                if (XposedChecker.isEnabled()) {
+
+                if (!SuUtils.isRootAvailable()) {
+                    Text(
+                        text = getString(LocalContext.current, R.string.no_root_access),
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Start,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+                else if (!XposedChecker.isEnabled()) {
+                    Text(
+                        text = getString(LocalContext.current, R.string.module_disabled),
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Start,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+                else {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -234,14 +254,6 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
-                } else {
-                    Text(
-                        text = getString(LocalContext.current, R.string.module_disabled),
-                        fontSize = 20.sp,
-                        textAlign = TextAlign.Start,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(10.dp)
-                    )
                 }
             }
         }
