@@ -4,6 +4,7 @@ import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import com.keshav.capturesposed.utils.PrefsUtils
+import com.keshav.capturesposed.utils.SuUtils
 import com.keshav.capturesposed.utils.XposedChecker
 
 class ScreenRecordQuickTile: TileService() {
@@ -21,7 +22,9 @@ class ScreenRecordQuickTile: TileService() {
     }
 
     private fun setButtonState() {
-        if (XposedChecker.isEnabled() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+            && XposedChecker.isEnabled() && SuUtils.isRootAvailable()) {
+
             if (PrefsUtils.isScreenRecordHookOn())
                 qsTile.state = Tile.STATE_ACTIVE
             else

@@ -3,6 +3,7 @@ package com.keshav.capturesposed.tiles
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import com.keshav.capturesposed.utils.PrefsUtils
+import com.keshav.capturesposed.utils.SuUtils
 import com.keshav.capturesposed.utils.XposedChecker
 
 class ScreenshotQuickTile: TileService() {
@@ -20,7 +21,7 @@ class ScreenshotQuickTile: TileService() {
     }
 
     private fun setButtonState() {
-        if (XposedChecker.isEnabled()) {
+        if (XposedChecker.isEnabled() && SuUtils.isRootAvailable()) {
             if (PrefsUtils.isScreenshotHookOn())
                 qsTile.state = Tile.STATE_ACTIVE
             else
