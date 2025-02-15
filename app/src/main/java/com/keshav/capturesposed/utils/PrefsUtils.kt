@@ -17,6 +17,12 @@ object PrefsUtils {
             override fun onServiceBind(service: XposedService) {
                 XposedChecker.flagAsEnabled()
                 prefs = service.getRemotePreferences(BuildConfig.APPLICATION_ID)
+
+                // If the module does not have root, then turn off the hooks.
+                if (!SuUtils.isRootAvailable()) {
+                    setHookState(screenshotHookActive, "screenshotHookActive", false)
+                    setHookState(screenRecordHookActive, "screenRecordHookActive", false)
+                }
             }
 
             override fun onServiceDied(service: XposedService) {}
