@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.app)
     alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -12,8 +13,8 @@ android {
         applicationId = "com.keshav.capturesposed"
         minSdk = 34
         targetSdk = 35
-        versionCode = 7
-        versionName = "1.0.6"
+        versionCode = 8
+        versionName = "1.0.7"
 
         vectorDrawables {
             useSupportLibrary = true
@@ -73,10 +74,10 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.activity.compose)
     implementation(libs.compose.ui)
-//    implementation(libs.compose.material)
     implementation(libs.compose.material3)
     implementation(libs.libxposed.service)
     debugImplementation(libs.compose.tooling)
     implementation(libs.libxposed.service)
+    implementation(libs.libsu.core)
     compileOnly(libs.libxposed.api)
 }

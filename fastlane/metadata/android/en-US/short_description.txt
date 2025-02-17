@@ -1,1 +1,1 @@
-Add support for blocking the Screenshot Detection API introduced in Android 14!
+Block Android's Screenshot and Screen Recording Detection APIs

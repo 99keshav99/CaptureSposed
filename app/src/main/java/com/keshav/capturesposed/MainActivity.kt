@@ -7,9 +7,12 @@ import android.view.WindowManager.SCREEN_RECORDING_STATE_VISIBLE
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +38,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -42,9 +47,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getString
+import androidx.core.graphics.drawable.toBitmap
 import com.keshav.capturesposed.ui.theme.APPTheme
 import com.keshav.capturesposed.utils.PrefsUtils
+import com.keshav.capturesposed.utils.SuUtils
 import com.keshav.capturesposed.utils.XposedChecker
 import java.util.function.Consumer
 
@@ -133,10 +141,17 @@ class MainActivity : ComponentActivity() {
             topBar = {
                 LargeTopAppBar(
                     title = {
-                        Text(
-                            text = stringResource(R.string.xposed_name),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                bitmap = loadXmlDrawable(R.drawable.ic_launcher_round)!!,
+                                contentDescription = stringResource(R.string.xposed_name)
+                            )
+                            Spacer(Modifier.padding(horizontal = 5.dp))
+                            Text(
+                                text = stringResource(R.string.xposed_name),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     },
                     scrollBehavior = scrollBehavior
                 )
@@ -176,7 +191,26 @@ class MainActivity : ComponentActivity() {
                     }
                     Text(getString(R.string.status_title), fontSize = 24.sp)
                 }
-                if (XposedChecker.isEnabled()) {
+
+                if (!SuUtils.isRootAvailable()) {
+                    Text(
+                        text = getString(LocalContext.current, R.string.no_root_access),
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Start,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+                else if (!XposedChecker.isEnabled()) {
+                    Text(
+                        text = getString(LocalContext.current, R.string.module_disabled),
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Start,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+                else {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -234,14 +268,6 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
-                } else {
-                    Text(
-                        text = getString(LocalContext.current, R.string.module_disabled),
-                        fontSize = 20.sp,
-                        textAlign = TextAlign.Start,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(10.dp)
-                    )
                 }
             }
         }
@@ -278,4 +304,15 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    /*
+        loadXmlDrawable() was sourced from
+        https://slack-chats.kotlinlang.org/t/506477/hello-i-am-trying-to-load-a-layer-list-drawable-with-this-co#707c4aef-021c-421b-b873-ea7ca453b61e
+     */
+    @Composable
+    fun loadXmlDrawable(@DrawableRes resId: Int): ImageBitmap? =
+        ContextCompat.getDrawable(
+            LocalContext.current,
+            resId
+        )?.toBitmap()?.asImageBitmap()
 }

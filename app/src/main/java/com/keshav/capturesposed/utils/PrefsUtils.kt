@@ -1,5 +1,6 @@
 package com.keshav.capturesposed.utils
 
+import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import com.keshav.capturesposed.BuildConfig
@@ -16,6 +17,12 @@ object PrefsUtils {
             override fun onServiceBind(service: XposedService) {
                 XposedChecker.flagAsEnabled()
                 prefs = service.getRemotePreferences(BuildConfig.APPLICATION_ID)
+
+                // If the module does not have root, then turn off the hooks.
+                if (!SuUtils.isRootAvailable()) {
+                    setHookState(screenshotHookActive, "screenshotHookActive", false)
+                    setHookState(screenRecordHookActive, "screenRecordHookActive", false)
+                }
             }
 
             override fun onServiceDied(service: XposedService) {}
@@ -47,14 +54,16 @@ object PrefsUtils {
 
     fun toggleScreenRecordHookState() {
         setHookState(screenRecordHookActive, "screenRecordHookActive", !isScreenRecordHookOn())
+        SuUtils.refreshRecordingCallbacks()
     }
 
+    @SuppressLint("ApplySharedPref")
     private fun setHookState(liveData: MutableLiveData<Boolean>, prefKey: String, prefVal: Boolean) {
         if (XposedChecker.isEnabled()) {
             liveData.value = prefVal
             val prefEdit = prefs!!.edit()
             prefEdit.putBoolean(prefKey, prefVal)
-            prefEdit.apply()
+            prefEdit.commit() // commit() is used instead of apply() to prevent a race condition.
         }
     }
 
