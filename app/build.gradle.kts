@@ -1,18 +1,17 @@
 plugins {
     alias(libs.plugins.app)
-    alias(libs.plugins.kotlin)
     alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace = "com.keshav.capturesposed"
-    compileSdk = 35
-    buildToolsVersion = "35.0.0"
+    compileSdk = 36
+    buildToolsVersion = "36.0.0"
 
     defaultConfig {
         applicationId = "com.keshav.capturesposed"
         minSdk = 34
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 8
         versionName = "1.0.7"
 
@@ -25,10 +24,6 @@ android {
         viewBinding = true
         buildConfig = true
         compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3" // libs.versions.compose.get()
     }
 
     buildTypes {
@@ -75,7 +70,6 @@ dependencies {
     implementation(libs.activity.compose)
     implementation(libs.compose.ui)
     implementation(libs.compose.material3)
-    implementation(libs.libxposed.service)
     debugImplementation(libs.compose.tooling)
     implementation(libs.libxposed.service)
     implementation(libs.libsu.core)
