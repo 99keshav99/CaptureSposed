@@ -1,0 +1,1 @@
+This release requires the JingMatrix LSPosed fork for revised API 100 compatibility. The SystemUI hook that automatically added Quick Settings tiles has been removed; add the Block Screenshot Detection and Block Recording Detection tiles manually from the tile editor if desired.
