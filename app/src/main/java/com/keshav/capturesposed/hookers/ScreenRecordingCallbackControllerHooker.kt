@@ -8,9 +8,6 @@ import io.github.libxposed.api.XposedInterface.BeforeHookCallback
 import io.github.libxposed.api.XposedInterface.Hooker
 import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface.SystemServerLoadedParam
-import io.github.libxposed.api.annotations.AfterInvocation
-import io.github.libxposed.api.annotations.BeforeInvocation
-import io.github.libxposed.api.annotations.XposedHooker
 
 object ScreenRecordingCallbackControllerHooker {
     private var module: XposedModule? = null
@@ -33,12 +30,10 @@ object ScreenRecordingCallbackControllerHooker {
         module.hook(dispatchCallbacksMethod, DispatchCallbacksHooker::class.java)
     }
 
-    @XposedHooker
     private class RegisterHooker: Hooker {
         companion object {
             @JvmStatic
-            @AfterInvocation
-            fun afterInvocation(callback: AfterHookCallback) {
+            fun after(callback: AfterHookCallback) {
                 val prefs = module?.getRemotePreferences(BuildConfig.APPLICATION_ID)
                 val isHookActive = prefs?.getBoolean("screenRecordHookActive", true)
 
@@ -53,12 +48,10 @@ object ScreenRecordingCallbackControllerHooker {
         }
     }
 
-    @XposedHooker
     private class DispatchCallbacksHooker: Hooker {
         companion object {
             @JvmStatic
-            @BeforeInvocation
-            fun beforeInvocation(callback: BeforeHookCallback) {
+            fun before(callback: BeforeHookCallback) {
                 val prefs = module?.getRemotePreferences(BuildConfig.APPLICATION_ID)
                 val isHookActive = prefs?.getBoolean("screenRecordHookActive", true)
 

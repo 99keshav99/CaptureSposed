@@ -67,14 +67,6 @@ object PrefsUtils {
         }
     }
 
-    fun markTileRevealAsDone() {
-        if (XposedChecker.isEnabled()) {
-            val prefEdit = prefs!!.edit()
-            prefEdit.putBoolean("tileRevealDone", true)
-            prefEdit.apply()
-        }
-    }
-
     fun getScreenshotHookActiveAsLiveData(): MutableLiveData<Boolean> {
         return screenshotHookActive
     }

@@ -11,8 +11,6 @@ import io.github.libxposed.api.XposedInterface.BeforeHookCallback
 import io.github.libxposed.api.XposedInterface.Hooker
 import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface.SystemServerLoadedParam
-import io.github.libxposed.api.annotations.BeforeInvocation
-import io.github.libxposed.api.annotations.XposedHooker
 import java.io.FileDescriptor
 
 object WindowManagerServiceHooker {
@@ -40,13 +38,11 @@ object WindowManagerServiceHooker {
         }
     }
 
-    @XposedHooker
     private class NotifyScreenshotListenersHooker: Hooker {
         companion object {
             @Suppress("unused")
             @JvmStatic
-            @BeforeInvocation
-            fun beforeInvocation(callback: BeforeHookCallback) {
+            fun before(callback: BeforeHookCallback) {
                 val prefs = module?.getRemotePreferences(BuildConfig.APPLICATION_ID)
                 val isHookActive = prefs?.getBoolean("screenshotHookActive", true)
 
@@ -61,13 +57,11 @@ object WindowManagerServiceHooker {
         }
     }
 
-    @XposedHooker
     private class OnShellCommandHooker: Hooker {
         companion object {
             @SuppressLint("PrivateApi")
             @JvmStatic
-            @BeforeInvocation
-            fun beforeInvocation(callback: BeforeHookCallback) {
+            fun before(callback: BeforeHookCallback) {
                 // This will intercept command: wm refresh-recording-callbacks
                 val wmCommandArgs = callback.args[3] as Array<*>
                 if (wmCommandArgs.size == 1 && wmCommandArgs[0] == "refresh-recording-callbacks") {
