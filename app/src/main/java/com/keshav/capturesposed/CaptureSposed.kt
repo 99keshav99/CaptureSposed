@@ -1,22 +1,25 @@
 package com.keshav.capturesposed
 
 import android.os.Build
+import android.util.Log
 import com.keshav.capturesposed.hookers.ScreenRecordingCallbackControllerHooker
 import com.keshav.capturesposed.hookers.WindowManagerServiceHooker
-import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface.ModuleLoadedParam
-import io.github.libxposed.api.XposedModuleInterface.SystemServerLoadedParam
+import io.github.libxposed.api.XposedModuleInterface.SystemServerStartingParam
 
 private lateinit var module: CaptureSposed
 
-class CaptureSposed(base: XposedInterface, param: ModuleLoadedParam) : XposedModule(base, param) {
-    init {
+const val TAG = "CaptureSposed"
+
+class CaptureSposed : XposedModule() {
+    override fun onModuleLoaded(param: ModuleLoadedParam) {
+        super.onModuleLoaded(param)
         module = this
     }
 
-    override fun onSystemServerLoaded(param: SystemServerLoadedParam) {
-        super.onSystemServerLoaded(param)
+    override fun onSystemServerStarting(param: SystemServerStartingParam) {
+        super.onSystemServerStarting(param)
 
         try {
             WindowManagerServiceHooker.hook(param, module)
@@ -24,7 +27,7 @@ class CaptureSposed(base: XposedInterface, param: ModuleLoadedParam) : XposedMod
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM)
                 ScreenRecordingCallbackControllerHooker.hook(param, module)
         } catch (e: Exception) {
-            log("[CaptureSposed] ERROR: $e")
+            log(Log.ERROR, TAG, "ERROR: $e")
         }
     }
 }
