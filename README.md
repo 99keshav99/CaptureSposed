@@ -16,7 +16,7 @@ CaptureSposed is an Xposed module that effectively disables this API as well as 
 </p>
 
 ### To use CaptureSposed:
-1. Install the [JingMatrix LSposed fork](https://github.com/JingMatrix/LSPosed). This requires your device to be rooted with Magisk or KernelSU. Installation instructions for LSPosed are available [here](https://github.com/JingMatrix/LSPosed?tab=readme-ov-file#install).
+1. Install an LSPosed build with API 101 support. This requires your device to be rooted with Magisk or KernelSU.
 2. Install CaptureSposed.
 3. Grant root access to CaptureSposed.
 4. Activate the CaptureSposed module in the LSposed user interface.
