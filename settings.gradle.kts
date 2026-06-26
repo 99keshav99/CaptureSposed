@@ -14,11 +14,6 @@ pluginManagement {
         maven {
             url = uri("https://jitpack.io")
         }
-        mavenLocal {
-            content {
-                includeGroup("io.github.libxposed")
-            }
-        }
     }
 
     versionCatalogs {

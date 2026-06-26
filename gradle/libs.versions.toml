@@ -1,8 +1,8 @@
 [versions]
 app = "9.2.1"
 kotlin = "2.3.21"
-xposed-api = "100"
-xposed-service = "100-1.0.0"
+xposed-api = "101.0.1"
+xposed-service = "101.0.0"
 libsu-core = "6.0.0"
 appcompat = "1.7.1"
 compose = "1.11.2"
