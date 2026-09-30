@@ -18,10 +18,14 @@ object PrefsUtils {
                 XposedChecker.flagAsEnabled()
                 prefs = service.getRemotePreferences(BuildConfig.APPLICATION_ID)
 
-                // If the module does not have root, then turn off the hooks.
                 if (!SuUtils.isRootAvailable()) {
+                    // If the module does not have root, then turn off the hooks.
                     setHookState(screenshotHookActive, "screenshotHookActive", false)
                     setHookState(screenRecordHookActive, "screenRecordHookActive", false)
+                } else {
+                    // The switch state is read before this binder arrives, so publish the stored values for the observers to apply.
+                    screenshotHookActive.postValue(prefs!!.getBoolean("screenshotHookActive", true))
+                    screenRecordHookActive.postValue(prefs!!.getBoolean("screenRecordHookActive", true))
                 }
             }
 
