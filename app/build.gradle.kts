@@ -5,15 +5,15 @@ plugins {
 
 android {
     namespace = "com.keshav.capturesposed"
-    compileSdk = 36
+    compileSdk = 37
     buildToolsVersion = "36.0.0"
 
     defaultConfig {
         applicationId = "com.keshav.capturesposed"
         minSdk = 34
-        targetSdk = 36
-        versionCode = 10
-        versionName = "1.1.0"
+        targetSdk = 37
+        versionCode = 11
+        versionName = "1.1.1"
 
         vectorDrawables {
             useSupportLibrary = true

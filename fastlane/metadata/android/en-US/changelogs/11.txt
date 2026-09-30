@@ -1,0 +1,1 @@
+This release fixes an issue where the module status card and screenshot/recording hook switches could show the wrong state until the app was restarted after LSPosed connected. The app now targets Android API level 37.
