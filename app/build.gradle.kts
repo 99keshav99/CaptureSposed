@@ -5,13 +5,13 @@ plugins {
 
 android {
     namespace = "com.keshav.capturesposed"
-    compileSdk = 36
+    compileSdk = 37
     buildToolsVersion = "36.0.0"
 
     defaultConfig {
         applicationId = "com.keshav.capturesposed"
         minSdk = 34
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 10
         versionName = "1.1.0"
 
