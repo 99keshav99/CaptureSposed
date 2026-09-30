@@ -12,8 +12,8 @@ android {
         applicationId = "com.keshav.capturesposed"
         minSdk = 34
         targetSdk = 37
-        versionCode = 10
-        versionName = "1.1.0"
+        versionCode = 11
+        versionName = "1.1.1"
 
         vectorDrawables {
             useSupportLibrary = true
