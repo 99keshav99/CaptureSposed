@@ -45,10 +45,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlin {
-        jvmToolchain(21)
-    }
-
     packaging {
         resources {
             merges += "META-INF/xposed/*"
@@ -67,6 +63,10 @@ android {
         abortOnError = true
         checkReleaseBuilds = true
     }
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {
