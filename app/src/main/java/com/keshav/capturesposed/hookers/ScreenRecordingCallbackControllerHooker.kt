@@ -22,7 +22,6 @@ object ScreenRecordingCallbackControllerHooker {
         classLoader = null
     }
 
-    @SuppressLint("PrivateApi")
     fun hook(classLoader: ClassLoader, module: XposedModule) {
         this.module = module
         this.classLoader = classLoader
@@ -30,7 +29,6 @@ object ScreenRecordingCallbackControllerHooker {
     }
 
     // Hot reload path: atomically swap old interceptors for new ones and install any missing hooks.
-    @SuppressLint("PrivateApi")
     fun replaceHooks(
         oldHandles: List<XposedInterface.HookHandle>,
         module: XposedModule,
@@ -127,7 +125,6 @@ object ScreenRecordingCallbackControllerHooker {
     )
 
     // Shared reflection lookup for ScreenRecordingCallbackController.dispatchCallbacks.
-    @SuppressLint("PrivateApi")
     private fun dispatchCallbacksMethod(
         screenRecordingCallbackControllerClass: Class<*>,
     ): Method = screenRecordingCallbackControllerClass.getDeclaredMethod(

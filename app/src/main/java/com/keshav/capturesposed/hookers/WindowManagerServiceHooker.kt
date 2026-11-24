@@ -34,7 +34,6 @@ object WindowManagerServiceHooker {
         classLoader = null
     }
 
-    @SuppressLint("PrivateApi")
     fun hook(classLoader: ClassLoader, module: XposedModule) {
         this.module = module
         this.classLoader = classLoader
@@ -42,7 +41,6 @@ object WindowManagerServiceHooker {
     }
 
     // Hot reload path: atomically swap old interceptors for new ones and install any missing hooks.
-    @SuppressLint("PrivateApi")
     fun replaceHooks(
         oldHandles: List<XposedInterface.HookHandle>,
         module: XposedModule,
