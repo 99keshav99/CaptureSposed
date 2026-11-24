@@ -168,28 +168,67 @@ object WindowManagerServiceHooker {
         // This will intercept command: wm refresh-recording-callbacks
         val wmCommandArgs = chain.getArg(3) as Array<*>
         if (wmCommandArgs.size == 1 && wmCommandArgs[0] == "refresh-recording-callbacks") {
-            val mScreenRecordingCallbackController = XposedHelpers.getObjectField(
-                chain.thisObject, "mScreenRecordingCallbackController"
-            ) as Any
-            val screenRecordingCallbackControllerClass = mScreenRecordingCallbackController::class.java
-
-            val getRecordedUidsMethod =
-                screenRecordingCallbackControllerClass.getDeclaredMethod("getRecordedUids")
-            val dispatchCallbacksMethod = screenRecordingCallbackControllerClass.getDeclaredMethod(
-                "dispatchCallbacks", ArraySet::class.java, Boolean::class.javaPrimitiveType
-            )
-
-            getRecordedUidsMethod.isAccessible = true
-            dispatchCallbacksMethod.isAccessible = true
-
-            val recordedUids = getRecordedUidsMethod.invoke(mScreenRecordingCallbackController)
-            val mRecordedWC =
-                XposedHelpers.getObjectField(mScreenRecordingCallbackController, "mRecordedWC")
-
-            dispatchCallbacksMethod.invoke(
-                mScreenRecordingCallbackController, recordedUids, mRecordedWC != null
-            )
+            try {
+                refreshRecordingCallbacks(chain.thisObject)
+            } catch (e: Exception) {
+                module?.log(Log.ERROR, TAG, "refresh-recording-callbacks failed: $e")
+            }
         }
         chain.proceed()
+    }
+
+    /*
+        Samsung/OneUI inlines getRecordedUids(); fall back to UIDs from mCallbacks when the method
+        is absent.
+     */
+    @SuppressLint("PrivateApi")
+    private fun refreshRecordingCallbacks(wms: Any) {
+        val mScreenRecordingCallbackController = XposedHelpers.getObjectField(
+            wms, "mScreenRecordingCallbackController"
+        ) as Any
+        val controllerClass = mScreenRecordingCallbackController::class.java
+
+        val dispatchCallbacksMethod = controllerClass.getDeclaredMethod(
+            "dispatchCallbacks", ArraySet::class.java, Boolean::class.javaPrimitiveType
+        )
+        dispatchCallbacksMethod.isAccessible = true
+
+        val recordedUids = try {
+            val getRecordedUidsMethod = controllerClass.getDeclaredMethod("getRecordedUids")
+            getRecordedUidsMethod.isAccessible = true
+            getRecordedUidsMethod.invoke(mScreenRecordingCallbackController) as ArraySet<*>
+        } catch (_: NoSuchMethodException) {
+            collectUidsFromCallbacks(mScreenRecordingCallbackController)
+        }
+
+        val mRecordedWC =
+            XposedHelpers.getObjectField(mScreenRecordingCallbackController, "mRecordedWC")
+
+        dispatchCallbacksMethod.invoke(
+            mScreenRecordingCallbackController, recordedUids, mRecordedWC != null
+        )
+    }
+
+    @SuppressLint("PrivateApi")
+    private fun collectUidsFromCallbacks(controller: Any): ArraySet<Int> {
+        val uids = ArraySet<Int>()
+        val mCallbacks = XposedHelpers.getObjectField(controller, "mCallbacks") as Any
+        val arrayMapClass = mCallbacks::class.java
+        val sizeMethod = arrayMapClass.getMethod("size")
+        val valueAtMethod = arrayMapClass.getMethod("valueAt", Int::class.javaPrimitiveType)
+        val size = sizeMethod.invoke(mCallbacks) as Int
+        if (size == 0) {
+            return uids
+        }
+
+        val mUidField = valueAtMethod.invoke(mCallbacks, 0)?.let { firstCallback ->
+            firstCallback::class.java.getDeclaredField("mUid").also { it.isAccessible = true }
+        } ?: return uids
+
+        for (i in 0 until size) {
+            val callback = valueAtMethod.invoke(mCallbacks, i) ?: continue
+            uids.add(mUidField.getInt(callback))
+        }
+        return uids
     }
 }

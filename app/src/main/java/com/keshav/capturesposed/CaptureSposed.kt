@@ -26,11 +26,16 @@ class CaptureSposed : XposedModule() {
 
         try {
             WindowManagerServiceHooker.hook(param.classLoader, module)
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM)
-                ScreenRecordingCallbackControllerHooker.hook(param.classLoader, module)
         } catch (e: Exception) {
-            log(Log.ERROR, TAG, "ERROR: $e")
+            log(Log.ERROR, TAG, "WindowManagerServiceHooker failed: $e")
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            try {
+                ScreenRecordingCallbackControllerHooker.hook(param.classLoader, module)
+            } catch (e: Exception) {
+                log(Log.ERROR, TAG, "ScreenRecordingCallbackControllerHooker failed: $e")
+            }
         }
     }
 

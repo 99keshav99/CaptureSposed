@@ -2,16 +2,18 @@ package com.keshav.capturesposed.hookers
 
 import android.annotation.SuppressLint
 import android.util.ArraySet
+import android.util.Log
 import com.keshav.capturesposed.BuildConfig
+import com.keshav.capturesposed.TAG
 import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedModule
 import java.lang.reflect.Method
 
 object ScreenRecordingCallbackControllerHooker {
-    private const val ID_REGISTER = "register"
+    private const val ID_REGISTER_SCREEN_RECORDING_CALLBACK = "registerScreenRecordingCallback"
     private const val ID_DISPATCH_CALLBACKS = "dispatchCallbacks"
 
-    private val HOOK_IDS = setOf(ID_REGISTER, ID_DISPATCH_CALLBACKS)
+    private val HOOK_IDS = setOf(ID_REGISTER_SCREEN_RECORDING_CALLBACK, ID_DISPATCH_CALLBACKS)
 
     private var module: XposedModule? = null
     private var classLoader: ClassLoader? = null
@@ -69,25 +71,52 @@ object ScreenRecordingCallbackControllerHooker {
     ) {
         fun shouldInstall(id: String) = onlyIds == null || id in onlyIds
 
-        val screenRecordingCallbackControllerClass =
-            classLoader.loadClass("com.android.server.wm.ScreenRecordingCallbackController")
-
-        if (shouldInstall(ID_REGISTER)) {
-            hookMethod(
-                module,
-                registerMethod(classLoader, screenRecordingCallbackControllerClass),
-                ID_REGISTER,
-                registerHooker(module),
-            )
+        if (shouldInstall(ID_REGISTER_SCREEN_RECORDING_CALLBACK)) {
+            try {
+                val windowManagerServiceClass =
+                    classLoader.loadClass("com.android.server.wm.WindowManagerService")
+                hookMethod(
+                    module,
+                    registerScreenRecordingCallbackMethod(classLoader, windowManagerServiceClass),
+                    ID_REGISTER_SCREEN_RECORDING_CALLBACK,
+                    registerScreenRecordingCallbackHooker(module),
+                )
+                module.log(
+                    Log.INFO,
+                    TAG,
+                    "Installed hook: WindowManagerService.registerScreenRecordingCallback",
+                )
+            } catch (e: Exception) {
+                module.log(
+                    Log.ERROR,
+                    TAG,
+                    "Failed to hook WindowManagerService.registerScreenRecordingCallback: $e",
+                )
+            }
         }
 
         if (shouldInstall(ID_DISPATCH_CALLBACKS)) {
-            hookMethod(
-                module,
-                dispatchCallbacksMethod(screenRecordingCallbackControllerClass),
-                ID_DISPATCH_CALLBACKS,
-                dispatchCallbacksHooker(module),
-            )
+            try {
+                val screenRecordingCallbackControllerClass =
+                    classLoader.loadClass("com.android.server.wm.ScreenRecordingCallbackController")
+                hookMethod(
+                    module,
+                    dispatchCallbacksMethod(screenRecordingCallbackControllerClass),
+                    ID_DISPATCH_CALLBACKS,
+                    dispatchCallbacksHooker(module),
+                )
+                module.log(
+                    Log.INFO,
+                    TAG,
+                    "Installed hook: ScreenRecordingCallbackController.dispatchCallbacks",
+                )
+            } catch (e: Exception) {
+                module.log(
+                    Log.ERROR,
+                    TAG,
+                    "Failed to hook ScreenRecordingCallbackController.dispatchCallbacks: $e",
+                )
+            }
         }
     }
 
@@ -110,18 +139,19 @@ object ScreenRecordingCallbackControllerHooker {
 
     private fun hookerForReplace(id: String, module: XposedModule): XposedInterface.Hooker? =
         when (id) {
-            ID_REGISTER -> registerHooker(module)
+            ID_REGISTER_SCREEN_RECORDING_CALLBACK -> registerScreenRecordingCallbackHooker(module)
             ID_DISPATCH_CALLBACKS -> dispatchCallbacksHooker(module)
             else -> null
         }
 
-    // Shared reflection lookup for ScreenRecordingCallbackController.register.
+    // Shared reflection lookup for WindowManagerService.registerScreenRecordingCallback.
     @SuppressLint("PrivateApi")
-    private fun registerMethod(
+    private fun registerScreenRecordingCallbackMethod(
         classLoader: ClassLoader,
-        screenRecordingCallbackControllerClass: Class<*>,
-    ): Method = screenRecordingCallbackControllerClass.getDeclaredMethod(
-        "register", classLoader.loadClass("android.window.IScreenRecordingCallback")
+        windowManagerServiceClass: Class<*>,
+    ): Method = windowManagerServiceClass.getDeclaredMethod(
+        "registerScreenRecordingCallback",
+        classLoader.loadClass("android.window.IScreenRecordingCallback"),
     )
 
     // Shared reflection lookup for ScreenRecordingCallbackController.dispatchCallbacks.
@@ -131,19 +161,20 @@ object ScreenRecordingCallbackControllerHooker {
         "dispatchCallbacks", ArraySet::class.java, Boolean::class.javaPrimitiveType
     )
 
-    // Interceptor for register; extracted so the same logic is used on cold start and hot reload.
-    private fun registerHooker(module: XposedModule): XposedInterface.Hooker = { chain ->
-        val prefs = module.getRemotePreferences(BuildConfig.APPLICATION_ID)
-        val isHookActive = prefs.getBoolean("screenRecordHookActive", true)
+    // Interceptor for registerScreenRecordingCallback; extracted so the same logic is used on cold start and hot reload.
+    private fun registerScreenRecordingCallbackHooker(module: XposedModule): XposedInterface.Hooker =
+        { chain ->
+            val prefs = module.getRemotePreferences(BuildConfig.APPLICATION_ID)
+            val isHookActive = prefs.getBoolean("screenRecordHookActive", true)
 
-        /*
-            register() returns a boolean indicating if the callback is associated with an app
-            that is currently being recorded. When the hook is active, this method should be
-            forced to return false.
-         */
-        val result = chain.proceed()
-        if (isHookActive) false else result
-    }
+            /*
+                registerScreenRecordingCallback() returns a boolean indicating if the callback is
+                associated with an app that is currently being recorded. When the hook is active,
+                this method should be forced to return false.
+             */
+            val result = chain.proceed()
+            if (isHookActive) false else result
+        }
 
     // Interceptor for dispatchCallbacks; extracted so the same logic is used on cold start and hot reload.
     private fun dispatchCallbacksHooker(module: XposedModule): XposedInterface.Hooker = { chain ->
