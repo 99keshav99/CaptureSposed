@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import com.keshav.capturesposed.BuildConfig
 import io.github.libxposed.service.XposedService
 import io.github.libxposed.service.XposedServiceHelper
+import androidx.core.content.edit
 
 object PrefsUtils {
     private var prefs: SharedPreferences? = null
@@ -65,9 +66,9 @@ object PrefsUtils {
     private fun setHookState(liveData: MutableLiveData<Boolean>, prefKey: String, prefVal: Boolean) {
         if (XposedChecker.isEnabled()) {
             liveData.value = prefVal
-            val prefEdit = prefs!!.edit()
-            prefEdit.putBoolean(prefKey, prefVal)
-            prefEdit.commit() // commit() is used instead of apply() to prevent a race condition.
+            prefs!!.edit(commit = true) { // commit is used instead of apply to prevent a race condition.
+                putBoolean(prefKey, prefVal)
+            }
         }
     }
 

@@ -1,6 +1,5 @@
 package com.keshav.capturesposed
 
-import android.app.Activity.ScreenCaptureCallback
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager.SCREEN_RECORDING_STATE_VISIBLE

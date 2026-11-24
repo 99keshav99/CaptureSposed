@@ -131,11 +131,4 @@ public final class XposedHelpers {
             throw new IllegalAccessError(e.getMessage());
         }
     }
-
-    /**
-     * For inner classes, returns the surrounding instance, i.e. the {@code this} reference of the surrounding class.
-     */
-    public static Object getSurroundingThis(Object obj) {
-        return getObjectField(obj, "this$0");
-    }
 }
