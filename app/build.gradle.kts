@@ -5,7 +5,11 @@ plugins {
 
 android {
     namespace = "com.keshav.capturesposed"
-    compileSdk = 37
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
     buildToolsVersion = "36.0.0"
 
     defaultConfig {
@@ -41,10 +45,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlin {
-        jvmToolchain(21)
-    }
-
     packaging {
         resources {
             merges += "META-INF/xposed/*"
@@ -63,6 +63,10 @@ android {
         abortOnError = true
         checkReleaseBuilds = true
     }
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {
