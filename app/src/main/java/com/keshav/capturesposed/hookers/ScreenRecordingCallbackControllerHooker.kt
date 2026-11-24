@@ -3,54 +3,163 @@ package com.keshav.capturesposed.hookers
 import android.annotation.SuppressLint
 import android.util.ArraySet
 import com.keshav.capturesposed.BuildConfig
+import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedModule
-import io.github.libxposed.api.XposedModuleInterface.SystemServerStartingParam
+import java.lang.reflect.Method
 
 object ScreenRecordingCallbackControllerHooker {
+    private const val ID_REGISTER = "register"
+    private const val ID_DISPATCH_CALLBACKS = "dispatchCallbacks"
+
+    private val HOOK_IDS = setOf(ID_REGISTER, ID_DISPATCH_CALLBACKS)
+
     private var module: XposedModule? = null
     private var classLoader: ClassLoader? = null
 
+    // Clears references to the old module generation during onHotReloading so this object does not pin it.
+    fun clearGenerationRefs() {
+        module = null
+        classLoader = null
+    }
+
     @SuppressLint("PrivateApi")
-    fun hook(param: SystemServerStartingParam, module: XposedModule) {
+    fun hook(classLoader: ClassLoader, module: XposedModule) {
         this.module = module
-        classLoader = param.classLoader
+        this.classLoader = classLoader
+        installHooks(classLoader, module, null)
+    }
 
-        val screenRecordingCallbackControllerClass =
-            classLoader!!.loadClass("com.android.server.wm.ScreenRecordingCallbackController")
-
-        val registerMethod = screenRecordingCallbackControllerClass.getDeclaredMethod(
-            "register", classLoader!!.loadClass("android.window.IScreenRecordingCallback")
-        )
-
-        val dispatchCallbacksMethod = screenRecordingCallbackControllerClass.getDeclaredMethod(
-            "dispatchCallbacks", ArraySet::class.java, Boolean::class.javaPrimitiveType
-        )
-
-        module.hook(registerMethod).intercept { chain ->
-            val prefs = module.getRemotePreferences(BuildConfig.APPLICATION_ID)
-            val isHookActive = prefs.getBoolean("screenRecordHookActive", true)
-
-            /*
-                register() returns a boolean indicating if the callback is associated with an app
-                that is currently being recorded. When the hook is active, this method should be
-                forced to return false.
-             */
-            val result = chain.proceed()
-            if (isHookActive) false else result
+    // Hot reload path: atomically swap old interceptors for new ones and install any missing hooks.
+    @SuppressLint("PrivateApi")
+    fun replaceHooks(
+        oldHandles: List<XposedInterface.HookHandle>,
+        module: XposedModule,
+    ): Set<XposedInterface.HookHandle> {
+        this.module = module
+        val claimed = mutableSetOf<XposedInterface.HookHandle>()
+        if (module.getApiVersion() < XposedInterface.API_102) {
+            return claimed
         }
 
-        module.hook(dispatchCallbacksMethod).intercept { chain ->
-            val prefs = module.getRemotePreferences(BuildConfig.APPLICATION_ID)
-            val isHookActive = prefs.getBoolean("screenRecordHookActive", true)
-
-            if (isHookActive) {
-                // If the screen recording detection block hook is active, then set the reported state to false.
-                val args = chain.args.toTypedArray()
-                args[1] = false
-                chain.proceed(args)
-            } else {
-                chain.proceed()
+        val presentIds = mutableSetOf<String>()
+        for (handle in oldHandles) {
+            val id = handle.id ?: handle.executable.name
+            if (id !in HOOK_IDS) {
+                continue
             }
+            val hooker = hookerForReplace(id, module) ?: continue
+            handle.replaceHook(hooker)
+            claimed.add(handle)
+            presentIds.add(id)
+        }
+
+        val missing = HOOK_IDS - presentIds
+        if (missing.isNotEmpty() && oldHandles.isNotEmpty()) {
+            val loader = oldHandles.first().executable.declaringClass.classLoader
+                ?: return claimed
+            this.classLoader = loader
+            installHooks(loader, module, missing)
+        }
+        return claimed
+    }
+
+    @SuppressLint("PrivateApi")
+    private fun installHooks(
+        classLoader: ClassLoader,
+        module: XposedModule,
+        onlyIds: Set<String>?,
+    ) {
+        fun shouldInstall(id: String) = onlyIds == null || id in onlyIds
+
+        val screenRecordingCallbackControllerClass =
+            classLoader.loadClass("com.android.server.wm.ScreenRecordingCallbackController")
+
+        if (shouldInstall(ID_REGISTER)) {
+            hookMethod(
+                module,
+                registerMethod(classLoader, screenRecordingCallbackControllerClass),
+                ID_REGISTER,
+                registerHooker(module),
+            )
+        }
+
+        if (shouldInstall(ID_DISPATCH_CALLBACKS)) {
+            hookMethod(
+                module,
+                dispatchCallbacksMethod(screenRecordingCallbackControllerClass),
+                ID_DISPATCH_CALLBACKS,
+                dispatchCallbacksHooker(module),
+            )
+        }
+    }
+
+    private fun hookMethod(
+        module: XposedModule,
+        method: Method,
+        id: String,
+        hooker: XposedInterface.Hooker,
+    ) {
+        val builder = module.hook(method)
+        /*
+            setId is API 102-only; on API 101 frameworks the compile-time API is still 102 but
+            getApiVersion() returns the framework LIB_API so this guard is a real 101/102 split.
+         */
+        if (module.getApiVersion() >= XposedInterface.API_102) {
+            builder.setId(id)
+        }
+        builder.intercept(hooker)
+    }
+
+    private fun hookerForReplace(id: String, module: XposedModule): XposedInterface.Hooker? =
+        when (id) {
+            ID_REGISTER -> registerHooker(module)
+            ID_DISPATCH_CALLBACKS -> dispatchCallbacksHooker(module)
+            else -> null
+        }
+
+    // Shared reflection lookup for ScreenRecordingCallbackController.register.
+    @SuppressLint("PrivateApi")
+    private fun registerMethod(
+        classLoader: ClassLoader,
+        screenRecordingCallbackControllerClass: Class<*>,
+    ): Method = screenRecordingCallbackControllerClass.getDeclaredMethod(
+        "register", classLoader.loadClass("android.window.IScreenRecordingCallback")
+    )
+
+    // Shared reflection lookup for ScreenRecordingCallbackController.dispatchCallbacks.
+    @SuppressLint("PrivateApi")
+    private fun dispatchCallbacksMethod(
+        screenRecordingCallbackControllerClass: Class<*>,
+    ): Method = screenRecordingCallbackControllerClass.getDeclaredMethod(
+        "dispatchCallbacks", ArraySet::class.java, Boolean::class.javaPrimitiveType
+    )
+
+    // Interceptor for register; extracted so the same logic is used on cold start and hot reload.
+    private fun registerHooker(module: XposedModule): XposedInterface.Hooker = { chain ->
+        val prefs = module.getRemotePreferences(BuildConfig.APPLICATION_ID)
+        val isHookActive = prefs.getBoolean("screenRecordHookActive", true)
+
+        /*
+            register() returns a boolean indicating if the callback is associated with an app
+            that is currently being recorded. When the hook is active, this method should be
+            forced to return false.
+         */
+        val result = chain.proceed()
+        if (isHookActive) false else result
+    }
+
+    // Interceptor for dispatchCallbacks; extracted so the same logic is used on cold start and hot reload.
+    private fun dispatchCallbacksHooker(module: XposedModule): XposedInterface.Hooker = { chain ->
+        val prefs = module.getRemotePreferences(BuildConfig.APPLICATION_ID)
+        val isHookActive = prefs.getBoolean("screenRecordHookActive", true)
+
+        if (isHookActive) {
+            // If the screen recording detection block hook is active, then set the reported state to false.
+            val args = chain.args.toTypedArray()
+            args[1] = false
+            chain.proceed(args)
+        } else {
+            chain.proceed()
         }
     }
 }

@@ -16,10 +16,12 @@ CaptureSposed is an Xposed module that effectively disables this API as well as 
 </p>
 
 ### To use CaptureSposed:
-1. Install an LSPosed build with API 101 support. This requires your device to be rooted with Magisk or KernelSU.
+1. Install an LSPosed build with API 101 or newer. This requires your device to be rooted with Magisk or KernelSU.
 2. Install CaptureSposed.
 3. Grant root access to CaptureSposed.
 4. Activate the CaptureSposed module in the LSposed user interface.
 5. Reboot your device and sign in.
 6. Open the CaptureSposed app and use the switches to enable or disable screenshot and screen recording detection blocking. Use the Testing card to verify that detection is blocked when expected.
 7. Optionally, add the Block Screenshot Detection and Block Recording Detection Quick Settings tiles from the tile editor. These tiles mirror the in-app switches.
+
+On LSPosed API 102, later CaptureSposed updates hot-reload without another reboot after the first activation. On API 101, reboot after each module update as before.
